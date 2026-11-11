@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pending Payments Guide - Wise</title>
+    <title>Cash App Business guide </title>
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -40,6 +40,24 @@
             font-size: 1.2rem;
             cursor: pointer;
         }
+        
+        /* Header Right Action Links */
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .sign-in-link {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.9rem;
+            transition: opacity 0.2s;
+        }
+        .sign-in-link:hover {
+            opacity: 0.8;
+        }
+
         /* Link styling for Sign Up */
         .sign-up-link {
             background-color: #c5ff41; /* Lime green */
@@ -90,13 +108,12 @@
             background-color: white;
             color: #1a3619;
         }
-        /* Updated to handle an actual image file */
         .hero-ad-image {
             width: 140px;
             height: 90px;
             border-radius: 8px;
             object-fit: cover;
-            background-color: #2a4f29; /* Fallback color before image loads */
+            background-color: #2a4f29;
         }
 
         /* Main Article Content */
@@ -145,7 +162,6 @@
             text-align: center;
             border-top: 1px solid #eaeaea;
         }
-        /* True Square for Wise */
         .company-square {
             display: flex;
             flex-direction: column;
@@ -178,7 +194,10 @@
             <i class="fa-solid fa-bars"></i>
             <i class="fa-solid fa-bolt" style="color: #c5ff41; margin-right: 5px;"></i> CashApp
         </div>
-        <a href="signup.html" class="sign-up-link">Sign up</a>
+        <div class="header-right">
+            <a href="login.html" class="sign-in-link">Sign in</a>
+            <a href="signup.html" class="sign-up-link">Sign up</a>
+        </div>
     </header>
 
     <!-- Hero Ad -->
@@ -187,7 +206,6 @@
             <h2>Discover<br>Cash App Business</h2>
             <a href="signup.html" class="register-link">Register now</a>
         </div>
-        <!-- Image Tag Inserted Here -->
         <img src="gra.jpeg" alt="Discover Wise Business" class="hero-ad-image">
     </div>
 
