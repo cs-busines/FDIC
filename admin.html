@@ -70,7 +70,7 @@
             const adminEmail = localStorage.getItem('walletAppSessionEmail');
             const adminToken = localStorage.getItem('userToken');
 
-            // Verify admin session
+            // Verify admin session permissions
             if (adminEmail !== 'admin@money.com' && (!adminToken || !adminToken.startsWith('admin-token'))) {
                 window.location.replace('login.html');
                 return;
@@ -137,7 +137,6 @@
                 return alert("Please enter a valid amount.");
             }
 
-            // Fetch latest user data
             const { data: user, error: fetchError } = await supabase
                 .from('users')
                 .select('*')
