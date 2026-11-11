@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Money - Admin Control Panel</title>
+
+    <!-- SUPABASE CDN SCRIPT -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        body { background-color: #000000; color: #ffffff; padding: 20px; display: flex; justify-content: center; }
+        .admin-container { width: 100%; max-width: 900px; }
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; border-bottom: 1px solid #222; padding-bottom: 16px; }
+        h1 { font-size: 24px; font-weight: 800; }
+        .logout-admin { background: #ef4444; color: white; border: none; padding: 8px 16px; border-radius: 99px; font-weight: 700; cursor: pointer; }
+        .stats-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 24px; }
+        .stat-card { background: #1c1c1e; padding: 20px; border-radius: 16px; border: 1px solid #2c2c2e; }
+        .stat-card h3 { font-size: 13px; color: #9ca3af; margin-bottom: 6px; }
+        .stat-card .value { font-size: 28px; font-weight: 800; color: #22c55e; }
+        .section-title { font-size: 14px; font-weight: 700; color: #9ca3af; letter-spacing: 0.8px; margin-bottom: 12px; text-transform: uppercase; }
+        .user-list { display: flex; flex-direction: column; gap: 12px; }
+        .user-card { background: #1c1c1e; border-radius: 16px; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #2c2c2e; flex-wrap: wrap; gap: 12px; }
+        .user-info h4 { font-size: 16px; font-weight: 700; margin-bottom: 3px; }
+        .user-info p { font-size: 13px; color: #9ca3af; }
+        .user-balance { font-size: 18px; font-weight: 800; color: #ffffff; margin-top: 4px; }
+        .fund-action { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .fund-input { width: 90px; padding: 10px; background: #121212; border: 1px solid #333; border-radius: 10px; color: white; font-weight: 700; font-size: 14px; outline: none; }
+        .btn-fund { background: #22c55e; color: #000; border: none; padding: 10px 14px; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 14px; }
+        .btn-deduct { background: #f59e0b; color: #000; border: none; padding: 10px 14px; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 14px; }
+        .btn-delete { background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid #ef4444; padding: 10px 14px; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 14px; transition: background 0.2s; }
+        .btn-delete:hover { background: #ef4444; color: #fff; }
+        .empty-state { text-align: center; color: #666; padding: 40px; font-size: 15px; background: #1c1c1e; border-radius: 16px; }
+    </style>
+</head>
+<body>
+
+    <div class="admin-container">
+        <header>
+            <h1>Admin Control Panel</h1>
+            <button class="logout-admin" onclick="adminLogout()">Log Out</button>
+        </header>
+
+        <div class="stats-row">
+            <div class="stat-card">
+                <h3>Total Registered Users</h3>
+                <div class="value" id="total-users">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Total System Balances</h3>
+                <div class="value" id="total-balances">$0.00</div>
+            </div>
+        </div>
+
+        <div class="section-title">All Registered Users (Supabase Database)</div>
+        <div class="user-list" id="admin-user-list"></div>
+    </div>
+
+    <script>
+        // --- SUPABASE INITIALIZATION ---
+        const SUPABASE_URL = 'https://bwjpezonaponhonuhxuc.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_MxOTCfQS4TB_bIDHSdkmIQ_bM0YFDU1';
+
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        const formatFiat = (num) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(num || 0);
+
+        async function loadAdminData() {
+            const adminEmail = localStorage.getItem('walletAppSessionEmail');
+            const adminToken = localStorage.getItem('userToken');
+
+            // Verify admin session
+            if (adminEmail !== 'admin@money.com' && (!adminToken || !adminToken.startsWith('admin-token'))) {
+                window.location.replace('login.html');
+                return;
+            }
+
+            try {
+                const { data: users, error } = await supabase
+                    .from('users')
+                    .select('*');
+
+                if (error) throw error;
+
+                const container = document.getElementById('admin-user-list');
+                container.innerHTML = '';
+
+                if (!users || users.length === 0) {
+                    container.innerHTML = `<div class="empty-state">No users signed up in the database yet.</div>`;
+                    document.getElementById('total-users').innerText = '0';
+                    document.getElementById('total-balances').innerText = formatFiat(0);
+                    return;
+                }
+
+                let totalBal = 0;
+                document.getElementById('total-users').innerText = users.length;
+
+                users.forEach((user) => {
+                    const cashBal = user.cash_balance || 0;
+                    totalBal += cashBal;
+                    const safeEmailId = user.email.replace(/[^a-zA-Z0-9]/g, '_');
+
+                    const userCard = document.createElement('div');
+                    userCard.className = 'user-card';
+                    userCard.innerHTML = `
+                        <div class="user-info">
+                            <h4>${user.name || 'Unnamed User'}</h4>
+                            <p>${user.cashtag || '$cashtag'} &bull; ${user.email || 'No email'}</p>
+                            <div class="user-balance">${formatFiat(cashBal)}</div>
+                        </div>
+                        <div class="fund-action">
+                            <input type="number" class="fund-input" id="fund-val-${safeEmailId}" placeholder="Amount" value="1000">
+                            <button class="btn-fund" onclick="modifyBalance('${user.email}', 'add')">Fund</button>
+                            <button class="btn-deduct" onclick="modifyBalance('${user.email}', 'deduct')">Deduct</button>
+                            <button class="btn-delete" onclick="deleteUser('${user.email}')">Delete</button>
+                        </div>
+                    `;
+                    container.appendChild(userCard);
+                });
+
+                document.getElementById('total-balances').innerText = formatFiat(totalBal);
+            } catch (error) {
+                console.error("Supabase load error: ", error);
+                document.getElementById('admin-user-list').innerHTML = `
+                    <div class="empty-state" style="color: #ef4444;">
+                        <strong>Database Error:</strong><br>${error.message}
+                    </div>`;
+            }
+        }
+
+        async function modifyBalance(email, actionType) {
+            const safeEmailId = email.replace(/[^a-zA-Z0-9]/g, '_');
+            const inputVal = parseFloat(document.getElementById(`fund-val-${safeEmailId}`).value);
+            
+            if (isNaN(inputVal) || inputVal <= 0) {
+                return alert("Please enter a valid amount.");
+            }
+
+            // Fetch latest user data
+            const { data: user, error: fetchError } = await supabase
+                .from('users')
+                .select('*')
+                .eq('email', email)
+                .single();
+
+            if (fetchError || !user) {
+                return alert("User not found.");
+            }
+
+            let currentBal = user.cash_balance || 0;
+            let history = user.history || [];
+
+            if (actionType === 'add') {
+                currentBal += inputVal;
+                history.unshift({
+                    asset: 'Cash',
+                    title: 'Admin Fund Deposit',
+                    subtitle: 'Direct Deposit from Admin',
+                    amountDisp: `+${formatFiat(inputVal)}`,
+                    action: 'Deposit',
+                    status: 'COMPLETED',
+                    id: Date.now()
+                });
+            } else if (actionType === 'deduct') {
+                if (inputVal > currentBal) {
+                    return alert(`Cannot deduct ${formatFiat(inputVal)}. User only has ${formatFiat(currentBal)} available.`);
+                }
+                currentBal -= inputVal;
+                history.unshift({
+                    asset: 'Cash',
+                    title: 'Admin Fund Deduction',
+                    subtitle: 'Deduction by Admin',
+                    amountDisp: `-${formatFiat(inputVal)}`,
+                    action: 'Deduction',
+                    status: 'COMPLETED',
+                    id: Date.now()
+                });
+            }
+
+            const { error: updateError } = await supabase
+                .from('users')
+                .update({ 
+                    cash_balance: currentBal, 
+                    history: history 
+                })
+                .eq('email', email);
+
+            if (updateError) {
+                alert("Error updating database: " + updateError.message);
+            } else {
+                loadAdminData();
+            }
+        }
+
+        async function deleteUser(email) {
+            if (!confirm(`Are you sure you want to delete user (${email})? This action cannot be undone.`)) {
+                return;
+            }
+
+            const { error } = await supabase
+                .from('users')
+                .delete()
+                .eq('email', email);
+
+            if (error) {
+                alert("Error deleting user: " + error.message);
+            } else {
+                loadAdminData();
+            }
+        }
+
+        function adminLogout() {
+            localStorage.removeItem('userToken');
+            localStorage.removeItem('walletAppSessionEmail');
+            window.location.replace('login.html');
+        }
+
+        window.addEventListener('DOMContentLoaded', loadAdminData);
+    </script>
+</body>
+</html>

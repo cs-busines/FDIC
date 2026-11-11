@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pending Payments Guide - Wise</title>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Base Reset & Typography */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            color: #222;
+            line-height: 1.6;
+            background-color: #fff;
+        }
+
+        /* Top Navigation Header */
+        .header {
+            background-color: #1a3619; /* Dark green */
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+        }
+        .header-left {
+            display: flex;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: 900;
+            font-style: italic;
+            letter-spacing: -0.5px;
+        }
+        .header-left i.fa-bars {
+            margin-right: 15px;
+            font-style: normal;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+        /* Link styling for Sign Up */
+        .sign-up-link {
+            background-color: #c5ff41; /* Lime green */
+            color: #1a3619;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            transition: background-color 0.2s;
+        }
+        .sign-up-link:hover {
+            background-color: #b2e63b;
+        }
+
+        /* Hero Ad Banner */
+        .hero-ad {
+            background-color: #1a3619;
+            color: white;
+            margin: 10px auto;
+            max-width: 800px;
+            border-radius: 8px;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .hero-ad-content h2 {
+            margin: 0 0 10px 0;
+            font-size: 1.6rem;
+            text-transform: uppercase;
+            line-height: 1.1;
+        }
+        /* Link styling for Register */
+        .register-link {
+            display: inline-block;
+            background-color: transparent;
+            color: white;
+            text-decoration: none;
+            border: 1px solid white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            transition: background-color 0.2s, color 0.2s;
+        }
+        .register-link:hover {
+            background-color: white;
+            color: #1a3619;
+        }
+        /* Updated to handle an actual image file */
+        .hero-ad-image {
+            width: 140px;
+            height: 90px;
+            border-radius: 8px;
+            object-fit: cover;
+            background-color: #2a4f29; /* Fallback color before image loads */
+        }
+
+        /* Main Article Content */
+        .article-container {
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            font-size: 2.2rem;
+            line-height: 1.1;
+            margin-bottom: 25px;
+            letter-spacing: -0.5px;
+        }
+        h2 {
+            font-size: 1.5rem;
+            margin-top: 35px;
+            margin-bottom: 15px;
+            line-height: 1.2;
+        }
+        p {
+            margin-bottom: 20px;
+            font-size: 1.05rem;
+        }
+        a.custom-link {
+            color: #222;
+            text-decoration: underline;
+            text-decoration-color: #c5ff41;
+            text-decoration-thickness: 3px;
+            font-weight: bold;
+        }
+        ul {
+            padding-left: 20px;
+            margin-bottom: 25px;
+        }
+        li {
+            margin-bottom: 10px;
+            font-size: 1.05rem;
+        }
+
+        /* Custom Footer */
+        .custom-footer {
+            background-color: #f9f9f9;
+            padding: 60px 20px;
+            margin-top: 50px;
+            text-align: center;
+            border-top: 1px solid #eaeaea;
+        }
+        /* True Square for Wise */
+        .company-square {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: #1a3619;
+            color: white;
+            width: 140px;
+            height: 140px;
+            margin: 0 auto;
+            border-radius: 12px;
+            font-size: 1.4rem;
+            font-weight: 900;
+            font-style: italic;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+        .company-square i {
+            color: #c5ff41;
+            font-size: 2rem;
+            margin-bottom: 10px;
+            font-style: normal;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header class="header">
+        <div class="header-left">
+            <i class="fa-solid fa-bars"></i>
+            <i class="fa-solid fa-bolt" style="color: #c5ff41; margin-right: 5px;"></i> CashApp
+        </div>
+        <a href="signup.html" class="sign-up-link">Sign up</a>
+    </header>
+
+    <!-- Hero Ad -->
+    <div class="hero-ad">
+        <div class="hero-ad-content">
+            <h2>Discover<br>Cash App Business</h2>
+            <a href="signup.html" class="register-link">Register now</a>
+        </div>
+        <!-- Image Tag Inserted Here -->
+        <img src="gra.jpeg" alt="Discover Wise Business" class="hero-ad-image">
+    </div>
+
+    <!-- Main Content -->
+    <main class="article-container">
+        
+        <h1>How to Accept Pending Cash App Payments. Step-by-Step Guide</h1>
+        
+        <p>If you have a <a href="signup.html" class="custom-link">Cash App for Business account</a>, you can set your account to manual payment approval. As a first step, check whether you have this setting enabled, as you'll need to manually accept and approve payments.</p>
+        
+        <p>You should also make sure that your account is activated and the customer has the correct payment details. If you have sent the customer a payment request or invoice, check whether they have approved the request.</p>
+        
+        <h2>How to Check the Payment Status for Cash App Payments</h2>
+        <p>To determine whether a payment is pending, follow these steps:</p>
+        <ul>
+            <li>Open Cash App on your device.</li>
+            <li>On the home screen, tap on the "Activity" tab.</li>
+            <li>Locate the payment marked as "Pending".</li>
+            <li>Tap on the payment to check the status.</li>
+        </ul>
+
+        <h2>How to Accept Cash App Payments in the App</h2>
+        <p>To accept a pending payment in Cash App:</p>
+        <ul>
+            <li>Open the app and select the notification icon on the top left.</li>
+            <li>Select the pending payment.</li>
+            <li>Tap "Accept".</li>
+        </ul>
+        <p>Once you have accepted the payment, the status should change from pending to completed.</p>
+
+        <h2>How Long Will My Cash App Payment Be Pending?</h2>
+        <p>If you have a pending payment, make sure you accept it within 24 hours. Otherwise, it will be automatically canceled and the status will change to "failed". The funds will be returned to the sender's account.²</p>
+        <p>Once you resolve pending payments, they should process within 1-3 business days.</p>
+
+        <h2>Understanding Pending Payments on Cash App</h2>
+        <p>Pending Cash App payments occur when a transaction has been started but hasn't been completed. Understanding the reasons a payment may be pending can help you resolve the issue quickly.</p>
+
+    </main>
+
+    <!-- Custom Footer -->
+    <footer class="custom-footer">
+        <div class="company-square">
+            <i class="fa-solid fa-flag"></i>
+            <span>CashApp</span>
+        </div>
+    </footer>
+
+</body>
+</html>

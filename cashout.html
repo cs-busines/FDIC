@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Withdraw Prototype</title>
+
+    <!-- SUPABASE CDN SCRIPT -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style> 
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        body { background-color: #121212; color: #ffffff; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .app-container { width: 100%; max-width: 420px; height: 100vh; max-height: 800px; background-color: #000000; display: flex; flex-direction: column; position: relative; overflow: hidden; border-radius: 24px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); border: 1px solid #222; }
+        .screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: #000000; display: flex; flex-direction: column; justify-content: space-between; transition: transform 0.3s ease-in-out; transform: translateX(100%); z-index: 10; }
+        .screen.active { transform: translateX(0); z-index: 20; }
+        .app-header { display: flex; align-items: center; padding: 20px 16px; gap: 16px; background-color: #000000; }
+        .back-btn { background: none; border: none; color: #ffffff; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .header-title-center { width: 100%; text-align: center; padding-right: 38px; }
+        .header-title { font-size: 18px; font-weight: 600; color: #ffffff; }
+        .header-subtitle { font-size: 13px; color: #888888; margin-top: 4px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .dropdown-item { padding: 12px; color: #fff; font-size: 14px; font-weight: 600; text-align: center; cursor: pointer; border-bottom: 1px solid #2a2a2a; }
+        .dropdown-item:hover { background-color: #2c2c2e; border-radius: 8px; }
+        .withdraw-amount-container { padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; flex-grow: 1; }
+        .amount-display { font-size: 52px; font-weight: 700; color: #ffffff; letter-spacing: -1px; margin-bottom: 30px; }
+        .continue-btn-wrapper { width: 100%; padding: 0 20px 20px 20px; }
+        .btn-white { width: 100%; background-color: #ffffff; color: #000000; font-size: 16px; font-weight: 600; padding: 16px; border: none; border-radius: 28px; cursor: pointer; text-align: center; }
+        .keypad { display: grid; grid-template-columns: repeat(3, 1fr); background-color: #000000; width: 100%; padding-bottom: 20px; }
+        .keypad-btn { background-color: #161616; border: none; color: #ffffff; font-size: 24px; font-weight: 500; padding: 22px 0; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; }
+        .keypad-btn:active { background-color: #333333; }
+        .keypad-sub { font-size: 10px; color: #888888; letter-spacing: 1px; margin-top: 2px; font-weight: 600; }
+        .withdraw-options-content { padding: 20px; flex-grow: 1; }
+        .main-title { font-size: 26px; font-weight: 700; line-height: 1.3; color: #ffffff; margin-bottom: 24px; }
+        .destination-row { display: flex; align-items: center; justify-content: space-between; background-color: #1a1a1a; padding: 14px 16px; border-radius: 16px; margin-bottom: 24px; border: 1px solid #2a2a2a; cursor: pointer; }
+        .destination-left { display: flex; align-items: center; gap: 12px; }
+        .bank-icon-circle { width: 32px; height: 32px; border-radius: 50%; background-color: #117aca; display: flex; align-items: center; justify-content: center; color: #ffffff; font-weight: bold; font-size: 11px; }
+        .destination-text { font-size: 15px; font-weight: 500; color: #ffffff; }
+        .options-list { display: flex; flex-direction: column; gap: 12px; }
+        .option-card { display: flex; align-items: center; justify-content: space-between; background-color: #161616; border: 1px solid #2a2a2a; border-radius: 16px; padding: 18px 16px; cursor: pointer; transition: all 0.2s ease; }
+        .option-card.selected { border-color: #ffffff; background-color: #1f1f1f; }
+        .option-left { display: flex; flex-direction: column; gap: 2px; }
+        .option-title { font-size: 16px; font-weight: 600; color: #ffffff; }
+        .option-fee { font-size: 13px; color: #888888; }
+        .radio-circle { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #555555; display: flex; align-items: center; justify-content: center; }
+        .option-card.selected .radio-circle { border-color: #ffffff; background-color: #ffffff; }
+        .option-card.selected .radio-circle::after { content: ''; width: 8px; height: 8px; border-radius: 50%; background-color: #000000; }
+        .footer-action { padding: 20px; width: 100%; }
+        .btn-withdraw { width: 100%; background-color: #2b2b2b; color: #777777; font-size: 16px; font-weight: 600; padding: 16px; border: none; border-radius: 28px; cursor: not-allowed; text-align: center; }
+        .btn-withdraw.active { background-color: #00D632; color: #000000; cursor: pointer; }
+        .success-content-wrapper { padding: 40px 24px; display: flex; flex-direction: column; flex-grow: 1; gap: 28px; }
+        .success-checkmark-circle { width: 52px; height: 52px; border-radius: 50%; background-color: #00D632; display: flex; align-items: center; justify-content: center; }
+        .success-message { font-size: 24px; font-weight: 700; line-height: 1.4; color: #ffffff; }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- SCREEN 1: Enter Amount -->
+        <div id="screen-amount" class="screen active">
+            <div>
+                <header class="app-header">
+                    <button class="back-btn" onclick="window.location.href='index.html'">
+                        <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2.5" fill="none"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                    </button>
+                    <div class="header-title-center">
+                        <div class="header-title">Withdraw</div>
+                        <div class="header-subtitle" onclick="toggleBalanceDropdown()">
+                            <span id="balance-source-display">Cash balance: $0.00</span>
+                            <svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" stroke-width="2" fill="none" style="margin-left: 2px;"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </div>
+                    </div>
+                </header>
+                
+                <div id="balance-dropdown" style="display: none; position: absolute; top: 60px; left: 50%; transform: translateX(-50%); background: #1c1c1e; border: 1px solid #333; border-radius: 12px; padding: 8px; z-index: 100; width: 200px;">
+                    <div class="dropdown-item" onclick="selectBalanceSource('cash')">Cash Balance</div>
+                    <div class="dropdown-item" onclick="selectBalanceSource('btc')">Bitcoin Balance</div>
+                </div>
+
+                <div class="withdraw-amount-container">
+                    <div id="display-amount" class="amount-display">$0</div>
+                </div>
+            </div>
+
+            <div>
+                <div class="continue-btn-wrapper"><button class="btn-white" onclick="goToOptions()">Continue</button></div>
+                <div class="keypad">
+                    <button class="keypad-btn" onclick="pressKey('1')">1</button>
+                    <button class="keypad-btn" onclick="pressKey('2')">2<span class="keypad-sub">ABC</span></button>
+                    <button class="keypad-btn" onclick="pressKey('3')">3<span class="keypad-sub">DEF</span></button>
+                    <button class="keypad-btn" onclick="pressKey('4')">4<span class="keypad-sub">GHI</span></button>
+                    <button class="keypad-btn" onclick="pressKey('5')">5<span class="keypad-sub">JKL</span></button>
+                    <button class="keypad-btn" onclick="pressKey('6')">6<span class="keypad-sub">MNO</span></button>
+                    <button class="keypad-btn" onclick="pressKey('7')">7<span class="keypad-sub">PQRS</span></button>
+                    <button class="keypad-btn" onclick="pressKey('8')">8<span class="keypad-sub">TUV</span></button>
+                    <button class="keypad-btn" onclick="pressKey('9')">9<span class="keypad-sub">WXYZ</span></button>
+                    <button class="keypad-btn" onclick="pressKey('.')">.</button>
+                    <button class="keypad-btn" onclick="pressKey('0')">0</button>
+                    <button class="keypad-btn" onclick="pressKey('backspace')">⌫</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- SCREEN 2: Options -->
+        <div id="screen-options" class="screen">
+            <div>
+                <header class="app-header">
+                    <button class="back-btn" onclick="goToScreen('screen-amount')">
+                        <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2.5" fill="none"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                    </button>
+                </header>
+                <div class="withdraw-options-content">
+                    <h1 id="withdraw-title" class="main-title">How do you want to withdraw $0?</h1>
+                    <div class="destination-row" onclick="window.location.href='link.html'">
+                        <div class="destination-left">
+                            <div class="bank-icon-circle" id="dest-icon-bg">DG</div>
+                            <div class="destination-text" id="dest-bank-name">Digital coin market debit <span style="color: #888888;">•••• 6486</span></div>
+                        </div>
+                        <svg viewBox="0 0 24 24" width="18" height="18" stroke="#888888" stroke-width="2" fill="none"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    </div>
+                    <div class="options-list">
+                        <div class="option-card" id="opt-standard" onclick="selectOption('standard')">
+                            <div class="option-left"><div class="option-title">Standard (24-hours)</div><div class="option-fee">$319.05 Fee</div></div>
+                            <div class="radio-circle"></div>
+                        </div>
+                        <div class="option-card" id="opt-instant" onclick="selectOption('instant')">
+                            <div class="option-left"><div class="option-title">Instant ⚡</div><div class="option-fee">$511.17 Fee</div></div>
+                            <div class="radio-circle"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-action"><button id="withdraw-btn" class="btn-withdraw" disabled onclick="executeWithdraw()">Withdraw</button></div>
+        </div>
+
+        <!-- SCREEN 3: OTP Verification Screen -->
+        <div id="screen-otp" class="screen" style="padding: 0; justify-content: flex-start;">
+            <header class="app-header" style="border-bottom: 1px solid #222;">
+                <button class="back-btn" onclick="goToScreen('screen-options')">
+                    <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2.5" fill="none"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                </button>
+                <div class="header-title-center">
+                    <div class="header-title">Confirm payment</div>
+                </div>
+            </header>
+
+            <div style="padding: 24px 20px; flex-grow: 1;">
+                <!-- Summary Card -->
+                <div style="background: #161616; border-radius: 16px; padding: 18px 16px; margin-bottom: 24px; border: 1px solid #2a2a2a; display: flex; flex-direction: column; gap: 14px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 15px;">
+                        <span style="color: #888;">Amount</span>
+                        <span id="otp-display-amount" style="font-weight: 700; font-size: 16px;">$0.00</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 15px;">
+                        <span style="color: #888;">To</span>
+                        <span id="otp-display-to" style="font-weight: 700; color: #fff;">•••• 6486</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 15px;">
+                        <span style="color: #888;">Note</span>
+                        <span id="otp-display-note" style="font-weight: 700; color: #00D632;">Standard</span>
+                    </div>
+                </div>
+
+                <div style="font-size: 18px; font-weight: 700; margin-bottom: 8px;">Verification required</div>
+                <div style="font-size: 13px; color: #888; margin-bottom: 16px;">Enter the 6-digit security authorization code sent to your registered mobile number.</div>
+
+                <div style="margin-bottom: 8px; font-size: 14px; font-weight: 600;">OTP Code</div>
+                <input type="text" id="otp-input" maxlength="6" placeholder="Enter 6-digit code" style="width: 100%; padding: 16px; background: #161616; border: 1px solid #333; border-radius: 12px; color: #fff; font-size: 18px; text-align: center; letter-spacing: 3px; outline: none;">
+                
+                <div id="otp-error" style="color: #ff3b30; font-size: 13px; margin-top: 8px; display: none;">Invalid OTP code. Please enter the correct code.</div>
+            </div>
+
+            <div class="footer-action" style="display: flex; flex-direction: column; gap: 12px;">
+                <button class="btn-white" onclick="verifyOtpCode()">Confirm</button>
+                <button class="btn-withdraw active" style="background: transparent; color: #888; border: none; cursor: pointer;" onclick="goToScreen('screen-options')">Cancel</button>
+            </div>
+        </div>
+
+        <!-- SCREEN 4: Success -->
+        <div id="screen-success" class="screen">
+            <div class="success-content-wrapper">
+                <div class="success-checkmark-circle">
+                    <svg viewBox="0 0 24 24" width="26" height="26" stroke="#000000" stroke-width="3.5" fill="none"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                </div>
+                <div id="success-text" class="success-message">Successfully initiated.</div>
+            </div>
+            <div class="footer-action"><button class="btn-withdraw active" onclick="finishWithdraw()">Done</button></div>
+        </div>
+    </div>
+
+    <script>
+        // --- SUPABASE INITIALIZATION ---
+        const SUPABASE_URL = 'https://bwjpezonaponhonuhxuc.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_MxOTCfQS4TB_bIDHSdkmIQ_bM0YFDU1';
+
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let userState = null;
+        let activeBalanceSource = 'cash';
+        let currentAmount = "0";
+        let selectedOptionType = null;
+        let currentBankCardStr = "•••• 6486";
+
+        const formatFiat = (num) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(num || 0);
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            const userEmail = localStorage.getItem('walletAppSessionEmail');
+            if (!userEmail) { window.location.href = 'login.html'; return; }
+
+            const { data, error } = await supabase
+                .from('users')
+                .select('*')
+                .eq('email', userEmail)
+                .single();
+
+            if (error || !data) {
+                console.error("Error fetching user data:", error);
+                window.location.href = 'login.html';
+                return;
+            }
+
+            userState = {
+                email: data.email,
+                name: data.name,
+                cashtag: data.cashtag,
+                cashBalance: data.cash_balance,
+                btcHolding: data.btc_holding,
+                btcPrice: data.btc_price,
+                profilePic: data.profile_pic,
+                history: data.history || [],
+                linkedBank: data.linked_bank
+            };
+
+            if (userState.linkedBank) {
+                const bankData = userState.linkedBank;
+                currentBankCardStr = `${bankData.bank} •••• ${bankData.last4}`;
+                document.getElementById('dest-bank-name').innerHTML = `${bankData.bank} debit <span style="color: #888888;">•••• ${bankData.last4}</span>`;
+                document.getElementById('dest-icon-bg').innerText = bankData.bank.substring(0, 2).toUpperCase();
+            }
+            updateBalanceDisplay();
+
+            const intent = localStorage.getItem('currentTxIntent');
+            if (intent) {
+                try {
+                    const parsedIntent = JSON.parse(intent);
+                    activeBalanceSource = parsedIntent.mode === 'btc' ? 'btc' : 'cash';
+                    currentAmount = (parsedIntent.amount || 0).toString();
+                    localStorage.removeItem('currentTxIntent');
+                } catch(e) {}
+            }
+            updateDisplay();
+        });
+
+        async function saveUserData() {
+            if (!userState || !userState.email) return;
+            const { error } = await supabase
+                .from('users')
+                .upsert({
+                    email: userState.email,
+                    name: userState.name,
+                    cashtag: userState.cashtag,
+                    cash_balance: userState.cashBalance,
+                    btc_holding: userState.btcHolding,
+                    btc_price: userState.btcPrice,
+                    profile_pic: userState.profilePic,
+                    history: userState.history,
+                    linked_bank: userState.linkedBank
+                }, { onConflict: 'email' });
+
+            if (error) console.error("Error saving to Supabase: ", error.message);
+        }
+
+        function toggleBalanceDropdown() {
+            const dropdown = document.getElementById('balance-dropdown');
+            dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function selectBalanceSource(source) {
+            activeBalanceSource = source;
+            document.getElementById('balance-dropdown').style.display = 'none';
+            updateBalanceDisplay();
+        }
+
+        function updateBalanceDisplay() {
+            const displayEl = document.getElementById('balance-source-display');
+            if (activeBalanceSource === 'cash') {
+                displayEl.innerText = `Cash balance: ${formatFiat(userState.cashBalance)}`;
+            } else {
+                const btcVal = (userState.btcHolding || 0) * (userState.btcPrice || 28507.68);
+                displayEl.innerText = `Bitcoin balance: ${formatFiat(btcVal)}`;
+            }
+        }
+
+        function updateDisplay() {
+            document.getElementById('display-amount').innerText = currentAmount === "" ? "$0" : "$" + currentAmount;
+        }
+
+        function pressKey(val) {
+            if (val === 'backspace') {
+                currentAmount = currentAmount.length > 1 ? currentAmount.slice(0, -1) : "0";
+            } else if (val === '.') {
+                if (!currentAmount.includes('.')) currentAmount += '.';
+            } else {
+                currentAmount = currentAmount === "0" ? val : currentAmount + val;
+            }
+            updateDisplay();
+        }
+
+        function goToOptions() {
+            const numAmount = parseFloat(currentAmount);
+            if (isNaN(numAmount) || numAmount <= 0) { alert("Please enter a valid amount."); return; }
+            
+            if (activeBalanceSource === 'cash' && numAmount > (userState.cashBalance || 0)) {
+                alert("Amount exceeds your Cash balance."); return;
+            }
+            document.getElementById('withdraw-title').innerText = `How do you want to withdraw $${currentAmount}?`;
+            goToScreen('screen-options');
+        }
+
+        function goToScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        function selectOption(type) {
+            selectedOptionType = type;
+            document.getElementById('opt-standard').classList.remove('selected');
+            document.getElementById('opt-instant').classList.remove('selected');
+            document.getElementById(type === 'standard' ? 'opt-standard' : 'opt-instant').classList.add('selected');
+
+            const btn = document.getElementById('withdraw-btn');
+            btn.removeAttribute('disabled');
+            btn.classList.add('active');
+        }
+
+        function executeWithdraw() {
+            if (!selectedOptionType) return;
+            const numAmount = parseFloat(currentAmount);
+            
+            document.getElementById('otp-display-amount').innerText = formatFiat(numAmount);
+            document.getElementById('otp-display-to').innerText = currentBankCardStr;
+            document.getElementById('otp-display-note').innerText = selectedOptionType === 'instant' ? 'Instant Withdrawal ⚡' : 'Standard (24-hours)';
+            
+            document.getElementById('otp-input').value = "";
+            document.getElementById('otp-error').style.display = 'none';
+
+            goToScreen('screen-otp');
+        }
+
+        function verifyOtpCode() {
+            const enteredOtp = document.getElementById('otp-input').value.trim();
+            const correctOtp = "849201";
+
+            if (enteredOtp === correctOtp) {
+                document.getElementById('otp-error').style.display = 'none';
+                
+                const numAmount = parseFloat(currentAmount);
+                document.getElementById('success-text').innerText = `$${numAmount.toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 2})} will be available in your bank account once total required payment has been added to balance.`;
+                
+                goToScreen('screen-success');
+            } else {
+                document.getElementById('otp-error').style.display = 'block';
+            }
+        }
+
+        async function finishWithdraw() {
+            if (!userState) return;
+            const numAmount = parseFloat(currentAmount);
+
+            if (activeBalanceSource === 'cash') {
+                userState.cashBalance = Math.max(0, (userState.cashBalance || 0) - numAmount);
+                if (!userState.history) userState.history = [];
+                userState.history.unshift({
+                    asset: 'Cash',
+                    title: 'Cash Out',
+                    amountDisp: `-$${numAmount.toFixed(2)}`,
+                    subtitle: `To Bank (${selectedOptionType})`,
+                    status: 'COMPLETED',
+                    action: 'Withdrawal',
+                    id: Date.now()
+                });
+            } else {
+                const btcToSpend = numAmount / (userState.btcPrice || 28507.68);
+                userState.btcHolding = Math.max(0, (userState.btcHolding || 0) - btcToSpend);
+                if (!userState.history) userState.history = [];
+                userState.history.unshift({
+                    asset: 'Bitcoin',
+                    title: 'Bitcoin Withdrawal',
+                    amountDisp: `-$${numAmount.toFixed(2)}`,
+                    subtitle: `~ ${btcToSpend.toFixed(8)} BTC`,
+                    status: 'Review',
+                    action: 'Withdrawal',
+                    id: Date.now()
+                });
+            }
+
+            await saveUserData();
+            window.location.href = "dashboard.html";
+        }
+    </script>
+</body>
+</html>
