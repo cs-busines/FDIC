@@ -79,7 +79,20 @@
       statusMessage.className = 'message';
       statusMessage.innerText = '⏳ Signing in...';
 
-      // Verify user in Supabase database
+      // --- ADMIN LOGIN BYPASS ---
+      if (email === 'admin@money.com' && password === 'admin123') {
+        statusMessage.className = 'message success';
+        statusMessage.innerText = '👑 Admin Access Verified! Redirecting...';
+        localStorage.setItem('walletAppSessionEmail', email);
+        localStorage.setItem('userToken', 'admin-token-secure');
+        
+        setTimeout(() => {
+          window.location.href = 'admin.html';
+        }, 1200);
+        return;
+      }
+
+      // --- REGULAR USER SUPABASE VERIFICATION ---
       const { data, error } = await supabase
         .from('users')
         .select('*')
@@ -93,6 +106,7 @@
         statusMessage.className = 'message success';
         statusMessage.innerText = '✅ Success! Redirecting to dashboard...';
         localStorage.setItem('walletAppSessionEmail', email);
+        localStorage.setItem('userToken', 'user-token-' + Date.now());
         
         setTimeout(() => {
           window.location.href = 'dashboard.html';
