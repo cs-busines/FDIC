@@ -65,7 +65,8 @@
     const SUPABASE_URL = 'https://bwjpezonaponhonuhxuc.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_MxOTCfQS4TB_bIDHSdkmIQ_bM0YFDU1';
 
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // Rename client to prevent global variable collision
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     const authForm = document.getElementById('authForm');
     const statusMessage = document.getElementById('statusMessage');
@@ -74,7 +75,7 @@
       e.preventDefault();
       
       const email = document.getElementById('email').value.trim().toLowerCase();
-      const password = document.getElementById('password').value.trim();
+      const password = document.getElementById('password').value; // Keep exact password input
       
       statusMessage.className = 'message';
       statusMessage.innerText = '⏳ Signing in...';
@@ -93,18 +94,21 @@
       }
 
       // --- REGULAR USER SUPABASE VERIFICATION ---
-      const { data, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('email', email)
-        .single();
+      // Securely authenticate the user with Supabase Auth
+      const { data, error } = await supabaseClient.auth.signInWithPassword({
+        email: email,
+        password: password,
+      });
 
-      if (error || !data) {
+      if (error) {
+        console.error("Login Error:", error);
         statusMessage.className = 'message error';
-        statusMessage.innerText = '⚠️ Account not found. Please sign up first.';
+        statusMessage.innerText = '⚠️ ' + error.message; // Usually returns "Invalid login credentials"
       } else {
         statusMessage.className = 'message success';
         statusMessage.innerText = '✅ Success! Redirecting to dashboard...';
+        
+        // Retain your localStorage variables for your dashboard functionality
         localStorage.setItem('walletAppSessionEmail', email);
         localStorage.setItem('userToken', 'user-token-' + Date.now());
         
