@@ -77,7 +77,8 @@
     const SUPABASE_URL = 'https://bwjpezonaponhonuhxuc.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_MxOTCfQS4TB_bIDHSdkmIQ_bM0YFDU1';
 
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // Initialize Supabase correctly without variable collisions
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     const authForm = document.getElementById('authForm');
     const statusMessage = document.getElementById('statusMessage');
@@ -88,37 +89,51 @@
       const name = document.getElementById('name').value.trim();
       let rawTag = document.getElementById('cashtag').value.trim();
       const email = document.getElementById('email').value.trim().toLowerCase();
+      const password = document.getElementById('password').value;
       
       const formattedTag = rawTag.startsWith('$') ? rawTag : '$' + rawTag;
 
       statusMessage.className = 'message';
       statusMessage.innerText = '⏳ Creating your account...';
 
-      // Insert into Supabase table
-      const { error } = await supabase
+      // Step 1: Securely register the user in Supabase Auth
+      const { data: authData, error: authError } = await supabaseClient.auth.signUp({
+        email: email,
+        password: password,
+      });
+
+      if (authError) {
+        console.error("Auth Error:", authError);
+        statusMessage.className = 'message error';
+        statusMessage.innerText = "⚠️ " + authError.message;
+        return; // Stop execution if auth fails
+      }
+
+      // Step 2: Insert the custom financial data into your 'users' table
+      const { error: dbError } = await supabaseClient
         .from('users')
         .insert([
           {
+            // id field removed to match your Supabase table schema
             email: email,
             name: name,
             cashtag: formattedTag,
             cash_balance: 0.00,
             btc_holding: 0.00000000,
             btc_price: 28507.68,
-            history: []
+            history: [] // Ensure your Supabase column type for history is JSONB
           }
         ]);
 
-      if (error) {
-        console.error("Supabase Error:", error);
+      if (dbError) {
+        console.error("Database Error:", dbError);
         statusMessage.className = 'message error';
-        statusMessage.innerText = "⚠️ " + error.message;
+        statusMessage.innerText = "⚠️ Account created, but failed to save profile: " + dbError.message;
       } else {
         statusMessage.className = 'message success';
         statusMessage.innerText = '✅ Account created successfully! Redirecting...';
         localStorage.setItem('walletAppSessionEmail', email);
         
-        // Give the user 1.5 seconds to read the success message before jumping to dashboard
         setTimeout(() => {
           window.location.href = 'dashboard.html';
         }, 1500);
