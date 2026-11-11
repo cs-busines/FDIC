@@ -75,7 +75,7 @@
       e.preventDefault();
       
       const email = document.getElementById('email').value.trim().toLowerCase();
-      const password = document.getElementById('password').value; // Keep exact password input
+      const password = document.getElementById('password').value; 
       
       statusMessage.className = 'message';
       statusMessage.innerText = '⏳ Signing in...';
@@ -94,7 +94,6 @@
       }
 
       // --- REGULAR USER SUPABASE VERIFICATION ---
-      // Securely authenticate the user with Supabase Auth
       const { data, error } = await supabaseClient.auth.signInWithPassword({
         email: email,
         password: password,
@@ -103,7 +102,7 @@
       if (error) {
         console.error("Login Error:", error);
         statusMessage.className = 'message error';
-        statusMessage.innerText = '⚠️ ' + error.message; // Usually returns "Invalid login credentials"
+        statusMessage.innerText = '⚠️ ' + error.message; 
       } else {
         statusMessage.className = 'message success';
         statusMessage.innerText = '✅ Success! Redirecting to dashboard...';
