@@ -26,9 +26,9 @@
     .switch-auth { text-align: center; margin-top: 1.5rem; font-size: 0.95rem; color: #6b7280; }
     .switch-auth a { color: #000000; font-weight: 600; text-decoration: none; }
     .switch-auth a:hover { text-decoration: underline; }
-    .message { text-align: center; margin-top: 1rem; font-size: 0.9rem; font-weight: 500; }
-    .message.error { color: #ef4444; }
-    .message.success { color: #22c55e; }
+    .message { text-align: center; margin-top: 1rem; font-size: 1rem; font-weight: 600; }
+    .message.error { color: #ef4444; background: #fee2e2; padding: 10px; border-radius: 8px; }
+    .message.success { color: #16a34a; background: #dcfce7; padding: 10px; border-radius: 8px; }
   </style>
 </head>
 <body>
@@ -92,8 +92,9 @@
       const formattedTag = rawTag.startsWith('$') ? rawTag : '$' + rawTag;
 
       statusMessage.className = 'message';
-      statusMessage.innerText = 'Creating account...';
+      statusMessage.innerText = '⏳ Creating your account...';
 
+      // Insert into Supabase table
       const { error } = await supabase
         .from('users')
         .insert([
@@ -111,14 +112,16 @@
       if (error) {
         console.error("Supabase Error:", error);
         statusMessage.className = 'message error';
-        statusMessage.innerText = error.message;
+        statusMessage.innerText = "⚠️ " + error.message;
       } else {
         statusMessage.className = 'message success';
-        statusMessage.innerText = 'Account created successfully! Redirecting...';
+        statusMessage.innerText = '✅ Account created successfully! Redirecting...';
         localStorage.setItem('walletAppSessionEmail', email);
+        
+        // Give the user 1.5 seconds to read the success message before jumping to dashboard
         setTimeout(() => {
           window.location.href = 'dashboard.html';
-        }, 1000);
+        }, 1500);
       }
     });
   </script>
