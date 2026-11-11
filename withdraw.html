@@ -20,7 +20,8 @@
         .top-icons a { color: #ffffff; text-decoration: none; font-size: 24px; }
         .page-title { font-size: 24px; font-weight: 700; margin-bottom: 40px; line-height: 1.3; }
         .options-list { display: flex; flex-direction: column; gap: 30px; }
-        .option-item { display: flex; align-items: flex-start; gap: 16px; cursor: pointer; }
+        .option-item { display: flex; align-items: flex-start; gap: 16px; cursor: pointer; pointer-events: auto; }
+        .option-item * { pointer-events: none; } /* Prevents child click issues */
         .radio-circle { width: 24px; height: 24px; border-radius: 50%; border: 2px solid #555555; display: flex; justify-content: center; align-items: center; flex-shrink: 0; margin-top: 2px; }
         .option-item.active .radio-circle { border-color: #48C2E9; }
         .radio-inner { width: 12px; height: 12px; background-color: transparent; border-radius: 50%; }
@@ -57,7 +58,7 @@
 
         <!-- SCREEN 2: SUCCESS -->
         <div id="screen-success" class="screen">
-            <div class="header-left"><a href="dashboard.html#history" class="close-btn">✕</a></div>
+            <div class="header-left"><a href="dashboard.html" class="close-btn">✕</a></div>
             <div class="success-content">
                 <div class="check-badge"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
                 <h1 class="headline" id="initiated-headline">
@@ -65,7 +66,7 @@
                     <div class="target-subtext" id="display-target">To: Bitcoin Address</div>
                 </h1>
             </div>
-            <div class="bottom-action"><button class="btn-done" onclick="window.location.href='dashboard.html#history'">Done</button></div>
+            <div class="bottom-action"><button class="btn-done" onclick="window.location.href='dashboard.html'">Done</button></div>
         </div>
     </div>
 
@@ -77,34 +78,38 @@
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         const userEmail = localStorage.getItem('walletAppSessionEmail');
-        let userState = null; // Guard until loaded
+        let userState = null; 
         let selectedSpeed = 'Priority';
 
         window.addEventListener('DOMContentLoaded', async () => {
             if (!userEmail) { window.location.href = 'login.html'; return; }
 
-            const { data, error } = await supabase
-                .from('users')
-                .select('*')
-                .eq('email', userEmail)
-                .single();
+            try {
+                const { data, error } = await supabase
+                    .from('users')
+                    .select('*')
+                    .eq('email', userEmail)
+                    .single();
 
-            if (error || !data) {
-                console.error("Error loading user state:", error);
-                return;
+                if (error || !data) {
+                    console.error("Error loading user state:", error);
+                    return;
+                }
+
+                userState = {
+                    email: data.email,
+                    name: data.name,
+                    cashtag: data.cashtag,
+                    cashBalance: data.cash_balance || 0,
+                    btcHolding: data.btc_holding || 0,
+                    btcPrice: data.btc_price || 28507.68,
+                    profilePic: data.profile_pic,
+                    history: data.history || [],
+                    linkedBank: data.linked_bank
+                };
+            } catch (err) {
+                console.error("Critical initialization error:", err);
             }
-
-            userState = {
-                email: data.email,
-                name: data.name,
-                cashtag: data.cashtag,
-                cashBalance: data.cash_balance || 0,
-                btcHolding: data.btc_holding || 0,
-                btcPrice: data.btc_price || 28507.68,
-                profilePic: data.profile_pic,
-                history: data.history || [],
-                linkedBank: data.linked_bank
-            };
         });
 
         async function saveUserData() {
@@ -160,7 +165,6 @@
             const btcPrice = userState.btcPrice || 28507.68;
             btcAmount = usdAmount / btcPrice;
 
-            // Deduct balances based on mode
             if (mode === 'btc') {
                 if (btcAmount > userState.btcHolding) {
                     alert("Insufficient Bitcoin balance for this withdrawal.");
@@ -175,14 +179,13 @@
                 userState.cashBalance = Math.max(0, userState.cashBalance - usdAmount);
             }
 
-            // Append transaction history (starts as PENDING for timer checks)
             if (!userState.history) userState.history = [];
             userState.history.unshift({
                 id: Date.now(),
                 asset: mode === 'btc' ? 'Bitcoin' : 'Cash',
                 title: targetRecipient,
                 amountDisp: `-$${usdAmount.toFixed(2)}`,
-                subtitle: mode === 'btc' ? `~ ${btcAmount.toFixed(8)} BTC (${selectedSpeed})` : `To ${targetRecipient}`,
+                subtitle: mode === 'btc' ? `~ ${btcAmount.toFixed(8)} BTC (${selectedSpeed})` : `To ${targetRecipient} (${selectedSpeed})`,
                 status: 'PENDING',
                 action: 'Withdrawal'
             });
@@ -190,7 +193,6 @@
             await saveUserData();
             localStorage.removeItem('currentTxIntent');
 
-            // Update UI elements dynamically
             document.getElementById('display-usd-amount').innerText = `$${usdAmount.toFixed(2)}`;
             document.getElementById('display-btc-amount').innerText = `${btcAmount.toFixed(8)} BTC`;
             document.getElementById('display-target').innerText = `To: ${targetRecipient}`;
