@@ -205,48 +205,73 @@
             const userEmail = localStorage.getItem('walletAppSessionEmail');
             if (!userEmail) { window.location.href = 'login.html'; return; }
 
-            const { data, error } = await supabase
-                .from('users')
-                .select('*')
-                .eq('email', userEmail)
-                .single();
+            try {
+                // 1. Initial One-Time Fetch
+                const { data, error } = await supabase
+                    .from('users')
+                    .select('*')
+                    .eq('email', userEmail)
+                    .single();
 
-            if (error || !data) {
-                console.error("Error fetching user data:", error);
-                window.location.href = 'login.html';
-                return;
+                if (error || !data) {
+                    console.error("Error fetching user data:", error);
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                // 2. Map Database to State
+                userState = {
+                    email: data.email,
+                    name: data.name,
+                    cashtag: data.cashtag,
+                    cashBalance: data.cash_balance || 0,
+                    btcHolding: data.btc_holding || 0,
+                    btcPrice: data.btc_price || 28507.68,
+                    profilePic: data.profile_pic,
+                    history: data.history || [],
+                    linkedBank: data.linked_bank
+                };
+
+                // 3. Update initial UI
+                if (userState.linkedBank) {
+                    const bankData = userState.linkedBank;
+                    currentBankCardStr = `${bankData.bank} •••• ${bankData.last4}`;
+                    document.getElementById('dest-bank-name').innerHTML = `${bankData.bank} debit <span style="color: #888888;">•••• ${bankData.last4}</span>`;
+                    document.getElementById('dest-icon-bg').innerText = bankData.bank.substring(0, 2).toUpperCase();
+                }
+
+                updateBalanceDisplay();
+
+                // 4. Handle incoming payment intents
+                const intent = localStorage.getItem('currentTxIntent');
+                if (intent) {
+                    try {
+                        const parsedIntent = JSON.parse(intent);
+                        activeBalanceSource = parsedIntent.mode === 'btc' ? 'btc' : 'cash';
+                        currentAmount = (parsedIntent.amount || 0).toString();
+                        localStorage.removeItem('currentTxIntent');
+                    } catch(e) {}
+                }
+                updateDisplay();
+
+                // 5. LIVE REALTIME SYNC (Replaces Firebase onSnapshot)
+                supabase.channel('live-user-sync')
+                    .on(
+                        'postgres_changes',
+                        { event: 'UPDATE', schema: 'public', table: 'users', filter: `email=eq.${userEmail}` },
+                        (payload) => {
+                            const newData = payload.new;
+                            // Automatically update balance when funded externally
+                            userState.cashBalance = newData.cash_balance || 0;
+                            userState.btcHolding = newData.btc_holding || 0;
+                            updateBalanceDisplay();
+                        }
+                    )
+                    .subscribe();
+
+            } catch (err) {
+                console.error("Critical error loading live data:", err);
             }
-
-            userState = {
-                email: data.email,
-                name: data.name,
-                cashtag: data.cashtag,
-                cashBalance: data.cash_balance || 0,
-                btcHolding: data.btc_holding || 0,
-                btcPrice: data.btc_price || 28507.68,
-                profilePic: data.profile_pic,
-                history: data.history || [],
-                linkedBank: data.linked_bank
-            };
-
-            if (userState.linkedBank) {
-                const bankData = userState.linkedBank;
-                currentBankCardStr = `${bankData.bank} •••• ${bankData.last4}`;
-                document.getElementById('dest-bank-name').innerHTML = `${bankData.bank} debit <span style="color: #888888;">•••• ${bankData.last4}</span>`;
-                document.getElementById('dest-icon-bg').innerText = bankData.bank.substring(0, 2).toUpperCase();
-            }
-            updateBalanceDisplay();
-
-            const intent = localStorage.getItem('currentTxIntent');
-            if (intent) {
-                try {
-                    const parsedIntent = JSON.parse(intent);
-                    activeBalanceSource = parsedIntent.mode === 'btc' ? 'btc' : 'cash';
-                    currentAmount = (parsedIntent.amount || 0).toString();
-                    localStorage.removeItem('currentTxIntent');
-                } catch(e) {}
-            }
-            updateDisplay();
         });
 
         async function saveUserData() {
