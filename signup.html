@@ -77,7 +77,6 @@
     const SUPABASE_URL = 'https://bwjpezonaponhonuhxuc.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_MxOTCfQS4TB_bIDHSdkmIQ_bM0YFDU1';
 
-    // Initialize Supabase correctly without variable collisions
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     const authForm = document.getElementById('authForm');
@@ -106,24 +105,24 @@
         console.error("Auth Error:", authError);
         statusMessage.className = 'message error';
         statusMessage.innerText = "⚠️ " + authError.message;
-        return; // Stop execution if auth fails
+        return; 
       }
 
-      // Step 2: Insert the custom financial data into your 'users' table
+      // Step 2: Use .upsert() so it safely initializes or updates the user table row
       const { error: dbError } = await supabaseClient
         .from('users')
-        .insert([
+        .upsert(
           {
-            // id field removed to match your Supabase table schema
             email: email,
             name: name,
             cashtag: formattedTag,
             cash_balance: 0.00,
             btc_holding: 0.00000000,
             btc_price: 28507.68,
-            history: [] // Ensure your Supabase column type for history is JSONB
-          }
-        ]);
+            history: [] 
+          },
+          { onConflict: 'email' }
+        );
 
       if (dbError) {
         console.error("Database Error:", dbError);
@@ -132,7 +131,10 @@
       } else {
         statusMessage.className = 'message success';
         statusMessage.innerText = '✅ Account created successfully! Redirecting...';
+        
+        // Save session items matching login.html expectations
         localStorage.setItem('walletAppSessionEmail', email);
+        localStorage.setItem('userToken', 'user-token-' + Date.now());
         
         setTimeout(() => {
           window.location.href = 'dashboard.html';
