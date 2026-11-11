@@ -25,9 +25,9 @@
     .switch-auth { text-align: center; margin-top: 1.5rem; font-size: 0.95rem; color: #6b7280; }
     .switch-auth a { color: #000000; font-weight: 600; text-decoration: none; }
     .switch-auth a:hover { text-decoration: underline; }
-    .message { text-align: center; margin-top: 1rem; font-size: 0.9rem; font-weight: 500; }
-    .message.error { color: #ef4444; }
-    .message.success { color: #22c55e; }
+    .message { text-align: center; margin-top: 1rem; font-size: 1rem; font-weight: 600; }
+    .message.error { color: #ef4444; background: #fee2e2; padding: 10px; border-radius: 8px; }
+    .message.success { color: #16a34a; background: #dcfce7; padding: 10px; border-radius: 8px; }
   </style>
 </head>
 <body>
@@ -77,16 +77,9 @@
       const password = document.getElementById('password').value.trim();
       
       statusMessage.className = 'message';
-      statusMessage.innerText = 'Signing in...';
+      statusMessage.innerText = '⏳ Signing in...';
 
-      // --- ADMIN LOGIN BYPASS ---
-      if (email === 'admin@money.com' && password === 'admin123') {
-        localStorage.setItem('walletAppSessionEmail', email);
-        window.location.href = 'admin.html';
-        return;
-      }
-
-      // --- REGULAR USER LOGIN VIA SUPABASE ---
+      // Verify user in Supabase database
       const { data, error } = await supabase
         .from('users')
         .select('*')
@@ -95,14 +88,15 @@
 
       if (error || !data) {
         statusMessage.className = 'message error';
-        statusMessage.innerText = 'Account not found. Please sign up first.';
+        statusMessage.innerText = '⚠️ Account not found. Please sign up first.';
       } else {
         statusMessage.className = 'message success';
-        statusMessage.innerText = 'Success! Redirecting to dashboard...';
+        statusMessage.innerText = '✅ Success! Redirecting to dashboard...';
         localStorage.setItem('walletAppSessionEmail', email);
+        
         setTimeout(() => {
           window.location.href = 'dashboard.html';
-        }, 1000);
+        }, 1500);
       }
     });
   </script>
