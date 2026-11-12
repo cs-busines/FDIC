@@ -188,7 +188,7 @@
         const SUPABASE_URL = 'https://bwjpezonaponhonuhxuc.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_MxOTCfQS4TB_bIDHSdkmIQ_bM0YFDU1';
 
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let userState = null;
         let newlyAddedAccount = null;
@@ -197,7 +197,7 @@
             const userEmail = localStorage.getItem('walletAppSessionEmail');
             if (!userEmail) { window.location.href = 'login.html'; return; }
 
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('users')
                 .select('*')
                 .eq('email', userEmail)
@@ -227,7 +227,7 @@
 
         async function saveUserData(updatedUser) {
             if (!updatedUser || !updatedUser.email) return;
-            const { error } = await supabase
+            const { error } = await supabaseClient
                 .from('users')
                 .upsert({
                     email: updatedUser.email,
