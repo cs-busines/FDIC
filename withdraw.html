@@ -50,15 +50,15 @@
             <div class="options-list">
                 <div class="option-item active" onclick="selectOption(this)" data-speed="Priority">
                     <div class="radio-circle"><div class="radio-inner"></div></div>
-                    <div class="option-text"><div class="option-title">Priority</div><div class="option-desc">Arrives in ~10 minutes<br>0.012 BTC ($1000.11) fee</div></div>
+                    <div class="option-text"><div class="option-title">Priority</div><div class="option-desc">Arrives in ~10 minutes<br>0.012 BTC fee</div></div>
                 </div>
                 <div class="option-item" onclick="selectOption(this)" data-speed="Rush">
                     <div class="radio-circle"><div class="radio-inner"></div></div>
-                    <div class="option-text"><div class="option-title">Rush</div><div class="option-desc">Arrives in ~2 hours<br>0.0073 BTC ($600.04) fee</div></div>
+                    <div class="option-text"><div class="option-title">Rush</div><div class="option-desc">Arrives in ~2 hours<br>0.0073 BTC fee</div></div>
                 </div>
                 <div class="option-item" onclick="selectOption(this)" data-speed="Standard">
                     <div class="radio-circle"><div class="radio-inner"></div></div>
-                    <div class="option-text"><div class="option-title">Standard</div><div class="option-desc">Arrives in ~24 hours<br>0.0063 BTC ($350.04) fee</div></div>
+                    <div class="option-text"><div class="option-title">Standard</div><div class="option-desc">Arrives in ~24 hours<br>0.0063 BTC fee</div></div>
                 </div>
             </div>
             <div class="bottom-action"><button class="btn-action" onclick="showSuccessScreen(event)">Next</button></div>
@@ -83,15 +83,15 @@
         const SUPABASE_URL = 'https://bwjpezonaponhonuhxuc.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_MxOTCfQS4TB_bIDHSdkmIQ_bM0YFDU1';
 
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         const userEmail = localStorage.getItem('walletAppSessionEmail');
-        let userState = { email: userEmail, history: [], btcHolding: 0, cashBalance: 0, btcPrice: 28507.68 };
+        let userState = null;
 
         window.addEventListener('DOMContentLoaded', async () => {
             if (!userEmail) { window.location.href = 'login.html'; return; }
 
-            const { data, error } = await supabase
+            const { data, error } = await supabaseClient
                 .from('users')
                 .select('*')
                 .eq('email', userEmail)
@@ -117,7 +117,7 @@
 
         async function saveUserData() {
             if (!userEmail || !userState) return;
-            const { error } = await supabase
+            const { error } = await supabaseClient
                 .from('users')
                 .upsert({
                     email: userState.email,
@@ -134,7 +134,6 @@
             if (error) console.error("Error saving to Supabase: ", error.message);
         }
 
-        // Fixed selection switcher function
         function selectOption(selectedElement) {
             document.querySelectorAll('.option-item').forEach(opt => opt.classList.remove('active'));
             selectedElement.classList.add('active');
@@ -142,9 +141,13 @@
 
         async function showSuccessScreen(event) {
             event.preventDefault(); 
+            if (!userState) {
+                alert("Loading session, please try again.");
+                return;
+            }
+
             const intentData = localStorage.getItem('currentTxIntent');
             let usdAmount = 100.88;
-            let btcAmount = 0.00125356;
             let targetRecipient = "Bitcoin Address";
             let mode = "btc";
 
@@ -160,12 +163,20 @@
             }
 
             const btcPrice = userState.btcPrice || 28507.68;
-            btcAmount = usdAmount / btcPrice;
+            const btcAmount = usdAmount / btcPrice;
 
             if (mode === 'btc') {
-                userState.btcHolding = Math.max(0, (userState.btcHolding || 0) - btcAmount);
+                if (btcAmount > (userState.btcHolding || 0)) {
+                    alert("Insufficient Bitcoin balance.");
+                    return;
+                }
+                userState.btcHolding = Math.max(0, userState.btcHolding - btcAmount);
             } else {
-                userState.cashBalance = Math.max(0, (userState.cashBalance || 0) - usdAmount);
+                if (usdAmount > (userState.cashBalance || 0)) {
+                    alert("Insufficient cash balance.");
+                    return;
+                }
+                userState.cashBalance = Math.max(0, userState.cashBalance - usdAmount);
             }
 
             if (!userState.history) userState.history = [];
@@ -182,7 +193,7 @@
             await saveUserData();
             localStorage.removeItem('currentTxIntent');
 
-            // Update UI elements dynamically
+            // Update UI elements dynamically with actual values
             document.getElementById('display-usd-amount').innerText = `$${usdAmount.toFixed(2)}`;
             document.getElementById('display-btc-amount').innerText = `${btcAmount.toFixed(8)} BTC`;
             document.getElementById('display-target').innerText = `To: ${targetRecipient}`;
