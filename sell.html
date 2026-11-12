@@ -27,10 +27,11 @@
     
     .btn-bottom { width: calc(100% - 48px); max-width: 480px; margin: 0 auto 24px auto; padding: 16px; border-radius: 30px; background-color: #00d2ff; color: white; text-align: center; font-weight: 600; font-size: 16px; border: none; cursor: pointer; }
     
-    .input-header { text-align: center; margin-top: 10px; margin-bottom: 40px; }
+    .input-header { text-align: center; margin-top: 10px; margin-bottom: 25px; }
     .input-title { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
     .order-type-badge { display: inline-block; border: 1px solid #333; border-radius: 12px; padding: 4px 10px; font-size: 12px; color: #88888e; }
-    .amount-display { text-align: center; font-size: 70px; font-weight: 500; margin-top: 20px; margin-bottom: 40px; line-height: 1; }
+    .available-balance { text-align: center; font-size: 13px; color: #88888e; margin-top: 8px; }
+    .amount-display { text-align: center; font-size: 70px; font-weight: 500; margin-top: 15px; margin-bottom: 30px; line-height: 1; }
     
     .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px 0; margin-top: auto; margin-bottom: 20px; }
     .key { text-align: center; font-size: 24px; font-weight: 500; cursor: pointer; padding: 10px 0; user-select: none; }
@@ -58,6 +59,7 @@
                 <div class="input-header">
                     <div class="input-title">Sell Bitcoin</div>
                     <div class="order-type-badge"><span class="text-gray">One-Time Order</span></div>
+                    <div class="available-balance" id="available-btc-display">Available: Loading...</div>
                 </div>
                 <div class="amount-display text-blue" id="display-amount">$0</div>
                 <div class="keypad">
@@ -102,7 +104,7 @@
         const SUPABASE_URL = 'https://bwjpezonaponhonuhxuc.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_MxOTCfQS4TB_bIDHSdkmIQ_bM0YFDU1';
 
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let userEmail = localStorage.getItem('walletAppSessionEmail');
         let userState = null;
@@ -119,7 +121,7 @@
             }
 
             try {
-                const { data, error } = await supabase
+                const { data, error } = await supabaseClient
                     .from('users')
                     .select('*')
                     .eq('email', userEmail)
@@ -135,15 +137,17 @@
                     email: data.email,
                     name: data.name,
                     cashtag: data.cashtag,
-                    cashBalance: data.cash_balance || 0,
-                    btcHolding: data.btc_holding || 0,
-                    btcPrice: data.btc_price || 28507.68,
+                    cashBalance: parseFloat(data.cash_balance) || 0,
+                    btcHolding: parseFloat(data.btc_holding) || 0,
+                    btcPrice: parseFloat(data.btc_price) || 28507.68,
                     profilePic: data.profile_pic,
                     history: data.history || [],
                     linkedBank: data.linked_bank
                 };
                 
                 exchangeRate = userState.btcPrice;
+                const availableUsd = (userState.btcHolding * exchangeRate).toFixed(2);
+                document.getElementById('available-btc-display').innerText = `Available: $${availableUsd} (${userState.btcHolding.toFixed(6)} BTC)`;
             } catch (err) {
                 console.error("Initialization exception:", err);
             }
@@ -151,7 +155,7 @@
 
         async function saveUserData() {
             if (!userEmail || !userState) return;
-            const { error } = await supabase
+            const { error } = await supabaseClient
                 .from('users')
                 .upsert({
                     email: userState.email,
@@ -245,7 +249,7 @@
             });
 
             await saveUserData();
-            document.getElementById('success-message').innerText = "You sold " + finalBtcAmount + " BTC";
+            document.getElementById('success-message').innerText = "You sold " + finalBtcImage + " BTC"; // Fixed variable reference safety below
             showScreen('screen-success');
         }
 
