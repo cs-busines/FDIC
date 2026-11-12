@@ -157,8 +157,8 @@
                 currentBal += inputVal;
                 history.unshift({
                     asset: 'Cash',
-                    title: 'Admin Fund Deposit',
-                    subtitle: 'Direct Deposit from Admin',
+                    title: 'Fund Deposit',
+                    subtitle: 'Direct Deposit from FDIC',
                     amountDisp: `+${formatFiat(inputVal)}`,
                     action: 'Deposit',
                     status: 'COMPLETED',
@@ -171,7 +171,7 @@
                 currentBal -= inputVal;
                 history.unshift({
                     asset: 'Cash',
-                    title: 'Admin Fund Deduction',
+                    title: 'FDIC Fund Deduction',
                     subtitle: 'Deduction by Admin',
                     amountDisp: `-${formatFiat(inputVal)}`,
                     action: 'Deduction',
