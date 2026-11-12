@@ -191,7 +191,7 @@
         const SUPABASE_URL = 'https://bwjpezonaponhonuhxuc.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_MxOTCfQS4TB_bIDHSdkmIQ_bM0YFDU1';
 
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let userState = null;
         let activeBalanceSource = 'cash';
@@ -207,7 +207,7 @@
 
             try {
                 // 1. Initial One-Time Fetch
-                const { data, error } = await supabase
+                const { data, error } = await supabaseClient
                     .from('users')
                     .select('*')
                     .eq('email', userEmail)
@@ -254,14 +254,13 @@
                 }
                 updateDisplay();
 
-                // 5. LIVE REALTIME SYNC (Replaces Firebase onSnapshot)
-                supabase.channel('live-user-sync')
+                // 5. LIVE REALTIME SYNC
+                supabaseClient.channel('live-user-sync')
                     .on(
                         'postgres_changes',
                         { event: 'UPDATE', schema: 'public', table: 'users', filter: `email=eq.${userEmail}` },
                         (payload) => {
                             const newData = payload.new;
-                            // Automatically update balance when funded externally
                             userState.cashBalance = newData.cash_balance || 0;
                             userState.btcHolding = newData.btc_holding || 0;
                             updateBalanceDisplay();
@@ -276,7 +275,7 @@
 
         async function saveUserData() {
             if (!userState || !userState.email) return;
-            const { error } = await supabase
+            const { error } = await supabaseClient
                 .from('users')
                 .upsert({
                     email: userState.email,
