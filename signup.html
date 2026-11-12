@@ -29,6 +29,7 @@
     .message { text-align: center; margin-top: 1rem; font-size: 1rem; font-weight: 600; }
     .message.error { color: #ef4444; background: #fee2e2; padding: 10px; border-radius: 8px; }
     .message.success { color: #16a34a; background: #dcfce7; padding: 10px; border-radius: 8px; }
+    .message.info { color: #2563eb; background: #dbeafe; padding: 10px; border-radius: 8px; }
   </style>
 </head>
 <body>
@@ -95,7 +96,7 @@
       statusMessage.className = 'message';
       statusMessage.innerText = '⏳ Creating your account...';
 
-      // Step 1: Securely register the user in Supabase Auth
+      // Step 1: Register in Supabase Auth
       const { data: authData, error: authError } = await supabaseClient.auth.signUp({
         email: email,
         password: password,
@@ -108,7 +109,7 @@
         return; 
       }
 
-      // Step 2: Use .upsert() so it safely initializes or updates the user table row
+      // Step 2: Save profile to database table
       const { error: dbError } = await supabaseClient
         .from('users')
         .upsert(
@@ -128,11 +129,19 @@
         console.error("Database Error:", dbError);
         statusMessage.className = 'message error';
         statusMessage.innerText = "⚠️ Account created, but failed to save profile: " + dbError.message;
+        return;
+      }
+
+      // Step 3: Handle email confirmation state
+      if (authData?.user && authData?.session === null) {
+        // Confirmation is ON in Supabase
+        statusMessage.className = 'message info';
+        statusMessage.innerText = '✉️ Account created! Please check your email to confirm your account before logging in.';
       } else {
+        // Confirmation is OFF in Supabase
         statusMessage.className = 'message success';
         statusMessage.innerText = '✅ Account created successfully! Redirecting...';
         
-        // Save session items matching login.html expectations
         localStorage.setItem('walletAppSessionEmail', email);
         localStorage.setItem('userToken', 'user-token-' + Date.now());
         
