@@ -104,6 +104,11 @@
             font-weight: 500;
         }
 
+        .status-completed {
+            color: #28a745;
+            font-weight: 500;
+        }
+
         .divider {
             height: 1px;
             background-color: #eee;
@@ -256,7 +261,7 @@
         <div class="info-list">
             <div class="info-item">
                 <span class="label">Status</span>
-                <span class="value status-pending">Pending</span>
+                <span class="value status-pending" id="display-status">Pending</span>
             </div>
             <div class="info-item">
                 <span class="label">Type</span>
@@ -272,7 +277,7 @@
             </div>
             <div class="info-item">
                 <span class="label">After Balance</span>
-                <span class="value">---</span>
+                <span class="value" id="display-after-balance">---</span>
             </div>
         </div>
 
@@ -336,50 +341,110 @@
 
         <!-- Footer Help Section -->
         <div class="footer-help">
-            <p>Need help? Reach out to <a href="#" onclick="if(typeof Tawk_API !== 'undefined'){ Tawk_API.toggle(); return false; }">Customer Service</a>,</p>
-            <p>or call <a href="tel:800, 888877866855">800, 888, 877, 866, 855</a> / <a href="tel: 833"> 833</a>.</p>
+            <p>Need help? Reach out to <a href="https://tawk.to/chat/6ae571b0580744346f2f26eb/default" target="_blank" rel="noopener noreferrer" onclick="return openTawkSupport(event);">Customer Service</a>,</p>
+            <p>or call <a href="tel:800888877866855">800, 888, 877, 866, 855</a> / <a href="tel:833">833</a>.</p>
             <p class="call-charges">Call charges may apply as per your service provider.</p>
         </div>
     </div>
 
-    <!-- Script to dynamically load transaction information and exact date/timestamp -->
+    <!-- Script to dynamically load transaction information, exact date/timestamp, and Tawk.to support -->
     <script>
+        function openTawkSupport(event) {
+            if (event) event.preventDefault();
+
+            const tawkUrl = 'https://tawk.to/chat/6ae571b0580744346f2f26eb/default';
+
+            if (window.Tawk_API) {
+                if (typeof window.Tawk_API.showWidget === 'function') {
+                    window.Tawk_API.showWidget();
+                }
+                if (typeof window.Tawk_API.maximize === 'function') {
+                    window.Tawk_API.maximize();
+                    return false;
+                }
+                if (typeof window.Tawk_API.toggle === 'function') {
+                    window.Tawk_API.toggle();
+                    return false;
+                }
+                if (typeof window.Tawk_API.popup === 'function') {
+                    window.Tawk_API.popup();
+                    return false;
+                }
+
+                const prevOnLoad = window.Tawk_API.onLoad;
+                window.Tawk_API.onLoad = function () {
+                    if (typeof prevOnLoad === 'function') prevOnLoad();
+                    if (typeof window.Tawk_API.maximize === 'function') {
+                        window.Tawk_API.maximize();
+                    }
+                };
+                return false;
+            }
+
+            window.open(tawkUrl, '_blank', 'noopener,noreferrer');
+            return false;
+        }
+
         function getQueryParams() {
             const params = {};
-            const queryString = window.location.search.substring(1);
-            const vars = queryString.split("&");
-            for (let i = 0; i < vars.length; i++) {
-                const pair = vars[i].split("=");
-                if (pair.length > 1) {
-                    params[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1].replace(/\+/g, ' '));
-                }
+            const searchParams = new URLSearchParams(window.location.search);
+            for (const [key, value] of searchParams.entries()) {
+                params[key] = value;
             }
             return params;
         }
 
+        function getSavedIntent() {
+            try {
+                const raw = localStorage.getItem('currentTxIntent');
+                return raw ? JSON.parse(raw) : {};
+            } catch (err) {
+                console.warn('Invalid currentTxIntent in localStorage:', err);
+                return {};
+            }
+        }
+
         window.addEventListener('DOMContentLoaded', () => {
             const params = getQueryParams();
-            const savedIntent = JSON.parse(localStorage.getItem('currentTxIntent') || '{}');
-            
-            // Grab values from URL parameters or fallback to localStorage intent
+            const savedIntent = getSavedIntent();
+
             const amountVal = params.amount || savedIntent.amount || "0.00";
             const destinationVal = params.bank || savedIntent.rawTarget || savedIntent.target || "External Account";
             const tradeNoVal = params.tradeno || savedIntent.tradeNo || ("261116" + Math.floor(100000 + Math.random() * 900000));
-            
-            // Capture Transaction Date (From URL param, saved intent, or current time fallback)
-            const txTimestamp = params.date || savedIntent.timestamp || Date.now();
-            const txDateObj = new Date(Number(txTimestamp) || Date.now());
-            const formattedTxDate = `${String(txDateObj.getDate()).padStart(2, '0')}/${String(txDateObj.getMonth() + 1).padStart(2, '0')}/${txDateObj.getFullYear()} ${String(txDateObj.getHours()).padStart(2, '0')}:${String(txDateObj.getMinutes()).padStart(2, '0')}`;
+            const statusVal = params.status || savedIntent.status || "Pending";
+            const afterBalanceVal = params.after || savedIntent.afterBalance || "---";
 
-            // Format Amount
+            const rawTimestamp = params.date || savedIntent.timestamp;
+            const parsedNum = Number(rawTimestamp);
+            const txDateObj = (!isNaN(parsedNum) && parsedNum > 0)
+                ? new Date(parsedNum)
+                : (rawTimestamp && !isNaN(Date.parse(rawTimestamp)) ? new Date(rawTimestamp) : new Date());
+
+            const formattedTxDate =
+                `${String(txDateObj.getDate()).padStart(2, '0')}/` +
+                `${String(txDateObj.getMonth() + 1).padStart(2, '0')}/` +
+                `${txDateObj.getFullYear()} ` +
+                `${String(txDateObj.getHours()).padStart(2, '0')}:` +
+                `${String(txDateObj.getMinutes()).padStart(2, '0')}`;
+
             const cleanAmount = String(amountVal).replace(/[^0-9.]/g, '');
             const num = parseFloat(cleanAmount);
-            const formattedAmount = `${isNaN(num) ? amountVal : num.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} USD`;
+            const formattedAmount = cleanAmount && !isNaN(num)
+                ? `${num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD`
+                : `${amountVal} USD`;
             document.getElementById('display-amount').innerText = formattedAmount;
 
-            // Display Destination / Withdraw To
+            const statusEl = document.getElementById('display-status');
+            statusEl.innerText = statusVal;
+            statusEl.classList.remove('status-pending', 'status-completed');
+            if (statusVal.toLowerCase() === 'completed' || statusVal.toLowerCase() === 'complete') {
+                statusEl.classList.add('status-completed');
+            } else {
+                statusEl.classList.add('status-pending');
+            }
+
             document.getElementById('display-destination').innerText = destinationVal;
-            
+
             const labelEl = document.getElementById('destination-label');
             if (destinationVal.startsWith('bc1') || destinationVal.startsWith('1') || destinationVal.startsWith('3')) {
                 labelEl.innerText = "Wallet Address";
@@ -389,10 +454,9 @@
                 labelEl.innerText = "Withdraw To";
             }
 
-            // Display Trade Number
             document.getElementById('display-tradeno').innerText = tradeNoVal;
+            document.getElementById('display-after-balance').innerText = afterBalanceVal;
 
-            // Display exact transaction date/time on timeline steps
             document.getElementById('time-req-1').innerText = formattedTxDate;
             document.getElementById('time-req-2').innerText = formattedTxDate;
             document.getElementById('time-req-3').innerText = formattedTxDate;
@@ -412,4 +476,4 @@
     })();
     </script>
 </body>
-</html>
+</html>   
