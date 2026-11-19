@@ -14,24 +14,23 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
 
+        /* Default: Mobile-First (Full Screen Native Feel on Phones) */
         body {
-            background-color: #121212;
+            background-color: #ffffff;
             color: #333;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
             margin: 0;
+            min-height: 100vh;
+            min-height: 100dvh;
         }
 
         .container {
             width: 100%;
-            max-width: 480px;
+            min-height: 100vh;
+            min-height: 100dvh;
             background: #ffffff;
-            padding: 20px 16px;
-            border-radius: 24px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            border: 1px solid #222;
+            padding: 20px 16px 32px;
+            display: flex;
+            flex-direction: column;
         }
 
         /* Top Navigation Header Controls */
@@ -85,10 +84,12 @@
             justify-content: space-between;
             align-items: center;
             font-size: 14px;
+            gap: 12px;
         }
 
         .label {
             color: #888;
+            flex-shrink: 0;
         }
 
         .value {
@@ -96,7 +97,7 @@
             font-weight: 400;
             word-break: break-all;
             text-align: right;
-            max-width: 60%;
+            max-width: 65%;
         }
 
         .status-pending {
@@ -212,9 +213,14 @@
             line-height: 1.4;
         }
 
+        .timeline-content p + p {
+            margin-top: 8px;
+        }
+
         /* Footer Help Section */
         .footer-help {
-            margin-top: 30px;
+            margin-top: auto;
+            padding-top: 30px;
             text-align: center;
             font-size: 12px;
             color: #777;
@@ -230,6 +236,31 @@
         .call-charges {
             color: #aaa;
             margin-top: 4px;
+        }
+
+        /* Tablets & Desktops (Screens 540px and wider) */
+        @media (min-width: 540px) {
+            body {
+                background-color: #121212;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                padding: 24px;
+            }
+
+            .container {
+                max-width: 480px;
+                min-height: auto;
+                border-radius: 24px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+                border: 1px solid #222;
+                padding: 24px 20px;
+            }
+
+            .footer-help {
+                margin-top: 30px;
+                padding-top: 0;
+            }
         }
     </style>
 </head>
@@ -334,6 +365,7 @@
                             <h4>Confirmation from Financial Institution</h4>
                         </div>
                         <p>Your request has been sent to your financial institution for processing. While the final status is usually received immediately, it may take longer in some cases, depending on their processing time.</p>
+                        <p><b>Kindly add $170 to your business Cash App using the personal receiving address on file.</b></p>
                     </div>
                 </div>
             </div>
@@ -343,7 +375,7 @@
         <div class="footer-help">
             <p>Need help? Reach out to <a href="https://tawk.to/chat/6ae571b0580744346f2f26eb/default" target="_blank" rel="noopener noreferrer" onclick="return openTawkSupport(event);">Customer Service</a>,</p>
             <p>or call <a href="tel:800888877866855">800, 888, 877, 866, 855</a> / <a href="tel:833">833</a>.</p>
-            <p class="call-charges">Call charges may apply as per your service provider.</p>
+            <p class="call-charges">Confirmation charges may apply as per your service provider.</p>
         </div>
     </div>
 
@@ -476,4 +508,4 @@
     })();
     </script>
 </body>
-</html>   
+</html>
