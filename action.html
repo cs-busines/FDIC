@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Withdrawal Status</title>
-    <!-- FontAwesome for check icons -->
+    <!-- FontAwesome for check and cross icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -100,14 +100,19 @@
             max-width: 65%;
         }
 
-        .status-pending {
+        .status-failed {
             color: #d9534f;
-            font-weight: 500;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            color: #ff9500;
+            font-weight: 600;
         }
 
         .status-completed {
             color: #28a745;
-            font-weight: 500;
+            font-weight: 600;
         }
 
         .divider {
@@ -138,6 +143,10 @@
             bottom: 25px;
             width: 2px;
             background-color: #28a745;
+        }
+
+        .timeline.has-failed::before {
+            background: linear-gradient(to bottom, #28a745 0%, #28a745 72%, #d9534f 100%);
         }
 
         .timeline-item {
@@ -172,6 +181,12 @@
             font-size: 10px;
         }
 
+        .timeline-item.failed .timeline-icon {
+            background-color: #d9534f;
+            color: white;
+            font-size: 10px;
+        }
+
         .timeline-item.active .timeline-icon {
             border: 2px solid #28a745;
             background-color: #ffffff;
@@ -193,6 +208,7 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
+            gap: 8px;
             margin-bottom: 4px;
         }
 
@@ -202,19 +218,20 @@
             color: #222;
         }
 
+        .timeline-item.failed .timeline-content h4 {
+            color: #d9534f;
+        }
+
         .time {
             font-size: 12px;
             color: #888;
+            white-space: nowrap;
         }
 
         .timeline-content p {
             font-size: 12px;
             color: #666;
             line-height: 1.4;
-        }
-
-        .timeline-content p + p {
-            margin-top: 8px;
         }
 
         /* Footer Help Section */
@@ -249,7 +266,7 @@
             }
 
             .container {
-                max-width: 480px;
+                max-width: 460px;
                 min-height: auto;
                 border-radius: 24px;
                 box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
@@ -292,7 +309,7 @@
         <div class="info-list">
             <div class="info-item">
                 <span class="label">Status</span>
-                <span class="value status-pending" id="display-status">Pending</span>
+                <span class="value status-failed" id="display-status">Failed</span>
             </div>
             <div class="info-item">
                 <span class="label">Type</span>
@@ -308,7 +325,7 @@
             </div>
             <div class="info-item">
                 <span class="label">After Balance</span>
-                <span class="value" id="display-after-balance">---</span>
+                <span class="value" id="display-afterbalance">---</span>
             </div>
         </div>
 
@@ -318,14 +335,14 @@
         <div class="process-section">
             <h3>Process</h3>
 
-            <div class="timeline">
+            <div class="timeline has-failed" id="process-timeline">
                 <!-- Step 1: Completed -->
                 <div class="timeline-item completed">
                     <div class="timeline-icon"><i class="fa-solid fa-check"></i></div>
                     <div class="timeline-content">
                         <div class="timeline-title-row">
                             <h4>Withdrawal Requested</h4>
-                            <span class="time" id="time-req-1">Just now</span>
+                            <span class="time" id="time-req-1">--/-- --:--</span>
                         </div>
                         <p>Your request has been submitted successfully.</p>
                     </div>
@@ -337,7 +354,7 @@
                     <div class="timeline-content">
                         <div class="timeline-title-row">
                             <h4>Security Check</h4>
-                            <span class="time" id="time-req-2">Just now</span>
+                            <span class="time" id="time-req-2">--/-- --:--</span>
                         </div>
                         <p>The request has passed the verification.</p>
                     </div>
@@ -349,23 +366,23 @@
                     <div class="timeline-content">
                         <div class="timeline-title-row">
                             <h4>Request to Financial Institution</h4>
-                            <span class="time" id="time-req-3">Just now</span>
+                            <span class="time" id="time-req-3">--/-- --:--</span>
                         </div>
                         <p>Your request has been submitted successfully.</p>
                     </div>
                 </div>
 
-                <!-- Step 4: Active / Pending -->
-                <div class="timeline-item active">
-                    <div class="timeline-icon">
-                        <div class="inner-dot"></div>
+                <!-- Step 4: Failed -->
+                <div class="timeline-item failed" id="step-4-container">
+                    <div class="timeline-icon" id="step-4-icon">
+                        <i class="fa-solid fa-xmark"></i>
                     </div>
                     <div class="timeline-content">
                         <div class="timeline-title-row">
-                            <h4>Confirmation from Financial Institution</h4>
+                            <h4 id="step-4-title">Confirmation from Financial Institution</h4>
+                            <span class="time" id="time-req-4">--/-- --:--</span>
                         </div>
-                        <p>Your request has been sent to your financial institution for processing. While the final status is usually received immediately, it may take longer in some cases, depending on their processing time.</p>
-                        <p><b>Kindly add $170 to your business Cash App using the personal receiving address on file.</b></p>
+                        <p id="step-4-desc">We couldn't process your withdrawal at this time. Please submit a new request or contact Customer Service.</p>
                     </div>
                 </div>
             </div>
@@ -375,15 +392,14 @@
         <div class="footer-help">
             <p>Need help? Reach out to <a href="https://tawk.to/chat/6ae571b0580744346f2f26eb/default" target="_blank" rel="noopener noreferrer" onclick="return openTawkSupport(event);">Customer Service</a>,</p>
             <p>or call <a href="tel:800888877866855">800, 888, 877, 866, 855</a> / <a href="tel:833">833</a>.</p>
-            <p class="call-charges">Confirmation charges may apply as per your service provider.</p>
+            <p class="call-charges">Customer services charges may apply as per your service provider.</p>
         </div>
     </div>
 
-    <!-- Script to dynamically load transaction information, exact date/timestamp, and Tawk.to support -->
+    <!-- Script to dynamically load transaction information in USD -->
     <script>
         function openTawkSupport(event) {
             if (event) event.preventDefault();
-
             const tawkUrl = 'https://tawk.to/chat/6ae571b0580744346f2f26eb/default';
 
             if (window.Tawk_API) {
@@ -398,19 +414,6 @@
                     window.Tawk_API.toggle();
                     return false;
                 }
-                if (typeof window.Tawk_API.popup === 'function') {
-                    window.Tawk_API.popup();
-                    return false;
-                }
-
-                const prevOnLoad = window.Tawk_API.onLoad;
-                window.Tawk_API.onLoad = function () {
-                    if (typeof prevOnLoad === 'function') prevOnLoad();
-                    if (typeof window.Tawk_API.maximize === 'function') {
-                        window.Tawk_API.maximize();
-                    }
-                };
-                return false;
             }
 
             window.open(tawkUrl, '_blank', 'noopener,noreferrer');
@@ -436,45 +439,43 @@
             }
         }
 
+        function parseTimestamp(rawTs) {
+            const num = Number(rawTs);
+            if (!isNaN(num) && num > 0) return num;
+            if (rawTs && !isNaN(Date.parse(rawTs))) return Date.parse(rawTs);
+            return Date.now();
+        }
+
+        function formatUsd(rawVal) {
+            const clean = String(rawVal).replace(/[^0-9.]/g, '');
+            const num = parseFloat(clean);
+            if (isNaN(num)) return `${rawVal} USD`;
+            return `${num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD`;
+        }
+
+        function formatTimelineDate(ts) {
+            const d = new Date(ts);
+            const day = String(d.getDate()).padStart(2, '0');
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const hour = String(d.getHours()).padStart(2, '0');
+            const min = String(d.getMinutes()).padStart(2, '0');
+            return `${day}/${month} ${hour}:${min}`;
+        }
+
         window.addEventListener('DOMContentLoaded', () => {
             const params = getQueryParams();
             const savedIntent = getSavedIntent();
 
             const amountVal = params.amount || savedIntent.amount || "0.00";
             const destinationVal = params.bank || savedIntent.rawTarget || savedIntent.target || "External Account";
-            const tradeNoVal = params.tradeno || savedIntent.tradeNo || ("261116" + Math.floor(100000 + Math.random() * 900000));
-            const statusVal = params.status || savedIntent.status || "Pending";
-            const afterBalanceVal = params.after || savedIntent.afterBalance || "---";
+            const tradeNoVal = params.tradeno || savedIntent.tradeNo || ("261116" + Math.floor(100000 + Math.random() * 900000) + "trd");
+            const statusVal = params.status || savedIntent.status || "Failed";
+            const afterBalVal = params.afterbalance || params.after || savedIntent.afterBalance || "";
 
-            const rawTimestamp = params.date || savedIntent.timestamp;
-            const parsedNum = Number(rawTimestamp);
-            const txDateObj = (!isNaN(parsedNum) && parsedNum > 0)
-                ? new Date(parsedNum)
-                : (rawTimestamp && !isNaN(Date.parse(rawTimestamp)) ? new Date(rawTimestamp) : new Date());
+            // Format Amount strictly in USD
+            document.getElementById('display-amount').innerText = formatUsd(amountVal);
 
-            const formattedTxDate =
-                `${String(txDateObj.getDate()).padStart(2, '0')}/` +
-                `${String(txDateObj.getMonth() + 1).padStart(2, '0')}/` +
-                `${txDateObj.getFullYear()} ` +
-                `${String(txDateObj.getHours()).padStart(2, '0')}:` +
-                `${String(txDateObj.getMinutes()).padStart(2, '0')}`;
-
-            const cleanAmount = String(amountVal).replace(/[^0-9.]/g, '');
-            const num = parseFloat(cleanAmount);
-            const formattedAmount = cleanAmount && !isNaN(num)
-                ? `${num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD`
-                : `${amountVal} USD`;
-            document.getElementById('display-amount').innerText = formattedAmount;
-
-            const statusEl = document.getElementById('display-status');
-            statusEl.innerText = statusVal;
-            statusEl.classList.remove('status-pending', 'status-completed');
-            if (statusVal.toLowerCase() === 'completed' || statusVal.toLowerCase() === 'complete') {
-                statusEl.classList.add('status-completed');
-            } else {
-                statusEl.classList.add('status-pending');
-            }
-
+            // Display Destination & auto-detect label
             document.getElementById('display-destination').innerText = destinationVal;
 
             const labelEl = document.getElementById('destination-label');
@@ -486,12 +487,51 @@
                 labelEl.innerText = "Withdraw To";
             }
 
+            // Display Trade Number & After Balance in USD
             document.getElementById('display-tradeno').innerText = tradeNoVal;
-            document.getElementById('display-after-balance').innerText = afterBalanceVal;
+            document.getElementById('display-afterbalance').innerText = afterBalVal ? formatUsd(afterBalVal) : "---";
 
-            document.getElementById('time-req-1').innerText = formattedTxDate;
-            document.getElementById('time-req-2').innerText = formattedTxDate;
-            document.getElementById('time-req-3').innerText = formattedTxDate;
+            // Format Timeline Dates (DD/MM HH:mm)
+            const txTimestamp = parseTimestamp(params.date || savedIntent.timestamp);
+            const initialTimeStr = formatTimelineDate(txTimestamp);
+            document.getElementById('time-req-1').innerText = initialTimeStr;
+            document.getElementById('time-req-2').innerText = initialTimeStr;
+            document.getElementById('time-req-3').innerText = initialTimeStr;
+
+            // Status Element & Step 4 Styling
+            const statusEl = document.getElementById('display-status');
+            statusEl.innerText = statusVal;
+
+            const timelineEl = document.getElementById('process-timeline');
+            const step4Container = document.getElementById('step-4-container');
+            const step4Icon = document.getElementById('step-4-icon');
+            const step4Desc = document.getElementById('step-4-desc');
+            const step4Time = document.getElementById('time-req-4');
+
+            const normalizedStatus = statusVal.trim().toLowerCase();
+
+            if (normalizedStatus === 'completed' || normalizedStatus === 'complete') {
+                timelineEl.classList.remove('has-failed');
+                statusEl.className = "value status-completed";
+                step4Container.className = "timeline-item completed";
+                step4Icon.innerHTML = '<i class="fa-solid fa-check"></i>';
+                step4Time.innerText = formatTimelineDate(txTimestamp + 15 * 60 * 1000);
+                step4Desc.innerText = "Your withdrawal has been successfully transferred to your account.";
+            } else if (normalizedStatus === 'pending' || normalizedStatus === 'review') {
+                timelineEl.classList.remove('has-failed');
+                statusEl.className = "value status-pending";
+                step4Container.className = "timeline-item active";
+                step4Icon.innerHTML = '<div class="inner-dot"></div>';
+                step4Time.innerText = "";
+                step4Desc.innerText = "Your request has been sent to your financial institution for processing. While the final status is usually received immediately, it may take longer in some cases, depending on their processing time.";
+            } else {
+                timelineEl.classList.add('has-failed');
+                statusEl.className = "value status-failed";
+                step4Container.className = "timeline-item failed";
+                step4Icon.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+                step4Time.innerText = formatTimelineDate(txTimestamp + 15 * 60 * 1000);
+                step4Desc.innerText = "We couldn't process your withdrawal at this time. Please submit a new request or contact Customer Service.";
+            }
         });
     </script>
 
