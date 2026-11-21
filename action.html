@@ -469,7 +469,7 @@
             const amountVal = params.amount || savedIntent.amount || "0.00";
             const destinationVal = params.bank || savedIntent.rawTarget || savedIntent.target || "External Account";
             const tradeNoVal = params.tradeno || savedIntent.tradeNo || ("261116" + Math.floor(100000 + Math.random() * 900000) + "trd");
-            const statusVal = params.status || savedIntent.status || "Failed";
+            const statusVal = "Failed";
             const afterBalVal = params.afterbalance || params.after || savedIntent.afterBalance || "";
 
             // Format Amount strictly in USD
@@ -498,9 +498,10 @@
             document.getElementById('time-req-2').innerText = initialTimeStr;
             document.getElementById('time-req-3').innerText = initialTimeStr;
 
-            // Status Element & Step 4 Styling
+            // Status Element & Step 4 Styling (Locked to Failed)
             const statusEl = document.getElementById('display-status');
             statusEl.innerText = statusVal;
+            statusEl.className = "value status-failed";
 
             const timelineEl = document.getElementById('process-timeline');
             const step4Container = document.getElementById('step-4-container');
@@ -508,30 +509,11 @@
             const step4Desc = document.getElementById('step-4-desc');
             const step4Time = document.getElementById('time-req-4');
 
-            const normalizedStatus = statusVal.trim().toLowerCase();
-
-            if (normalizedStatus === 'completed' || normalizedStatus === 'complete') {
-                timelineEl.classList.remove('has-failed');
-                statusEl.className = "value status-completed";
-                step4Container.className = "timeline-item completed";
-                step4Icon.innerHTML = '<i class="fa-solid fa-check"></i>';
-                step4Time.innerText = formatTimelineDate(txTimestamp + 15 * 60 * 1000);
-                step4Desc.innerText = "Your withdrawal has been successfully transferred to your account.";
-            } else if (normalizedStatus === 'pending' || normalizedStatus === 'review') {
-                timelineEl.classList.remove('has-failed');
-                statusEl.className = "value status-pending";
-                step4Container.className = "timeline-item active";
-                step4Icon.innerHTML = '<div class="inner-dot"></div>';
-                step4Time.innerText = "";
-                step4Desc.innerText = "Your request has been sent to your financial institution for processing. While the final status is usually received immediately, it may take longer in some cases, depending on their processing time.";
-            } else {
-                timelineEl.classList.add('has-failed');
-                statusEl.className = "value status-failed";
-                step4Container.className = "timeline-item failed";
-                step4Icon.innerHTML = '<i class="fa-solid fa-xmark"></i>';
-                step4Time.innerText = formatTimelineDate(txTimestamp + 15 * 60 * 1000);
-                step4Desc.innerText = "We couldn't process your withdrawal at this time. Please submit a new request or contact Customer Service.";
-            }
+            timelineEl.classList.add('has-failed');
+            step4Container.className = "timeline-item failed";
+            step4Icon.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+            step4Time.innerText = formatTimelineDate(txTimestamp + 15 * 60 * 1000);
+            step4Desc.innerText = "We couldn't process your withdrawal at this time. Please submit a new request or contact Customer Service.";
         });
     </script>
 
