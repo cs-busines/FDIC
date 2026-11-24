@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Withdrawal Status</title>
-    <!-- FontAwesome for check and cross icons -->
+    <!-- FontAwesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -14,377 +14,379 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
 
-        /* Default: Mobile-First (Full Screen Native Feel on Phones) */
-        body {
-            background-color: #ffffff;
-            color: #333;
-            margin: 0;
-            min-height: 100vh;
-            min-height: 100dvh;
+        html, body {
+            width: 100%;
+            min-height: 100%;
         }
 
-        .container {
-            width: 100%;
+        body {
+            background-color: #eef0f2;
+            color: #1c1e21;
+            display: flex;
+            justify-content: center;
+            align-items: stretch;
             min-height: 100vh;
-            min-height: 100dvh;
+            padding: 0;
+        }
+
+        /* Ensure any embedded or added media scales cleanly and can go full-size */
+        img,
+        video,
+        picture,
+        svg:not(.nav-btn svg),
+        iframe {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .media-full {
+            width: 100%;
+            height: auto;
+            display: block;
+            object-fit: cover;
+            border-radius: 14px;
+        }
+
+        .receipt-card {
+            width: 100%;
+            max-width: 640px;
+            min-height: 100vh;
             background: #ffffff;
-            padding: 20px 16px 32px;
+            padding: 20px 24px 32px;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+            border: 1px solid #e5e7eb;
             display: flex;
             flex-direction: column;
         }
 
-        /* Top Navigation Header Controls */
-        .top-nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
+        @media (min-width: 680px) {
+            body {
+                padding: 20px;
+                align-items: flex-start;
+            }
+
+            .receipt-card {
+                min-height: auto;
+                border-radius: 22px;
+            }
         }
 
-        .icon-btn {
-            background: none;
+        /* Top Navigation Bar (< | Title | x) */
+        .top-bar {
+            display: grid;
+            grid-template-columns: 36px 1fr 36px;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 22px;
+        }
+
+        .nav-btn {
+            width: 36px;
+            height: 36px;
             border: none;
-            color: #111;
+            background: transparent;
+            color: #1c1e21;
+            border-radius: 50%;
             cursor: pointer;
-            padding: 4px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.18s ease;
+        }
+
+        .nav-btn:hover {
+            background-color: #f3f4f6;
+        }
+
+        .nav-btn:active {
+            background-color: #e5e7eb;
+        }
+
+        .top-title {
+            text-align: center;
+            font-size: 16px;
+            font-weight: 600;
+            color: #1c1e21;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Hero Badge & Status Heading */
+        .status-hero {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .hero-badge {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
+            color: #ffffff;
+            font-size: 24px;
+            background-color: #2e7d32;
+            margin-bottom: 14px;
         }
 
-        /* Header Amount Row */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .header h2 {
-            font-size: 18px;
-            font-weight: 600;
-            color: #111;
-        }
-
-        .amount {
-            font-size: 18px;
-            font-weight: 700;
-            color: #111;
-        }
-
-        /* Details Info List */
-        .info-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .info-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 14px;
-            gap: 12px;
-        }
-
-        .label {
-            color: #888;
-            flex-shrink: 0;
-        }
-
-        .value {
-            color: #333;
+        .status-hero h1 {
+            font-size: 28px;
             font-weight: 400;
-            word-break: break-all;
-            text-align: right;
-            max-width: 65%;
+            color: #1c1e21;
+            line-height: 1.2;
         }
 
-        .status-failed {
-            color: #d9534f;
+        .status-pill {
+            margin-top: 8px;
+            font-size: 12px;
             font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 999px;
         }
 
-        .status-pending {
-            color: #ff9500;
-            font-weight: 600;
+        .status-pill.status-pending {
+            background-color: #fff4e5;
+            color: #b25e09;
         }
 
-        .status-completed {
-            color: #28a745;
-            font-weight: 600;
+        .status-pill.status-completed {
+            background-color: #e8f5e9;
+            color: #2e7d32;
         }
 
-        .divider {
-            height: 1px;
-            background-color: #eee;
-            margin: 20px 0;
-        }
-
-        /* Process Section */
-        .process-section h3 {
-            font-size: 14px;
-            color: #888;
-            margin-bottom: 16px;
-            font-weight: 500;
-        }
-
+        /* Vertical Step Timeline */
         .timeline {
             position: relative;
-            padding-left: 10px;
-        }
-
-        /* Timeline Vertical Line */
-        .timeline::before {
-            content: '';
-            position: absolute;
-            left: 19px;
-            top: 10px;
-            bottom: 25px;
-            width: 2px;
-            background-color: #28a745;
-        }
-
-        .timeline.has-failed::before {
-            background: linear-gradient(to bottom, #28a745 0%, #28a745 72%, #d9534f 100%);
+            margin-bottom: 28px;
         }
 
         .timeline-item {
             position: relative;
             display: flex;
+            align-items: flex-start;
             gap: 16px;
-            margin-bottom: 24px;
+            padding-bottom: 24px;
         }
 
         .timeline-item:last-child {
-            margin-bottom: 0;
+            padding-bottom: 0;
         }
 
-        /* Timeline Icons */
-        .timeline-icon {
+        .timeline-item:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            left: 11px;
+            top: 26px;
+            bottom: -2px;
+            width: 2px;
+            background-color: #2e7d32;
+        }
+
+        .step-icon {
             position: relative;
             z-index: 2;
-            width: 20px;
-            height: 20px;
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: #ffffff;
             flex-shrink: 0;
-            margin-top: 2px;
+            margin-top: 1px;
+            font-size: 11px;
         }
 
-        .timeline-item.completed .timeline-icon {
-            background-color: #28a745;
-            color: white;
-            font-size: 10px;
+        .timeline-item.done .step-icon {
+            background-color: #2e7d32;
+            color: #ffffff;
         }
 
-        .timeline-item.failed .timeline-icon {
-            background-color: #d9534f;
-            color: white;
-            font-size: 10px;
-        }
-
-        .timeline-item.active .timeline-icon {
-            border: 2px solid #28a745;
+        .timeline-item.active .step-icon {
             background-color: #ffffff;
+            border: 2px solid #2e7d32;
+            color: #2e7d32;
         }
 
-        .timeline-item.active .inner-dot {
-            width: 8px;
-            height: 8px;
-            background-color: #28a745;
-            border-radius: 50%;
+        .step-content {
+            flex: 1;
         }
 
-        /* Timeline Content */
-        .timeline-content {
-            flex-grow: 1;
-        }
-
-        .timeline-title-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 8px;
-            margin-bottom: 4px;
-        }
-
-        .timeline-content h4 {
+        .step-title {
             font-size: 14px;
+            font-weight: 500;
+            color: #1c1e21;
+            line-height: 1.42;
+        }
+
+        .step-sub {
+            font-size: 12.5px;
+            color: #6b7280;
+            margin-top: 3px;
+            line-height: 1.42;
+        }
+
+        /* Transaction Details */
+        .details-section {
+            border-top: 1px solid #eceef2;
+            padding-top: 20px;
+        }
+
+        .details-section h2 {
+            font-size: 16px;
             font-weight: 600;
-            color: #222;
+            color: #1c1e21;
+            margin-bottom: 16px;
         }
 
-        .timeline-item.failed .timeline-content h4 {
-            color: #d9534f;
+        .detail-item {
+            margin-bottom: 14px;
         }
 
-        .time {
-            font-size: 12px;
-            color: #888;
-            white-space: nowrap;
+        .detail-item:last-child {
+            margin-bottom: 0;
         }
 
-        .timeline-content p {
-            font-size: 12px;
-            color: #666;
-            line-height: 1.4;
+        .detail-label {
+            font-size: 12.5px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 2px;
+        }
+
+        .detail-value {
+            font-size: 14px;
+            color: #4b5563;
+            word-break: break-word;
         }
 
         /* Footer Help Section */
         .footer-help {
             margin-top: auto;
-            padding-top: 30px;
+            padding-top: 24px;
+            border-top: 1px solid #eceef2;
             text-align: center;
             font-size: 12px;
-            color: #777;
+            color: #6b7280;
             line-height: 1.5;
         }
 
         .footer-help a {
-            color: #28a745;
+            color: #2e7d32;
+            font-weight: 500;
             text-decoration: none;
             cursor: pointer;
         }
 
-        .call-charges {
-            color: #aaa;
-            margin-top: 4px;
+        .footer-help a:hover {
+            text-decoration: underline;
         }
 
-        /* Tablets & Desktops (Screens 540px and wider) */
-        @media (min-width: 540px) {
-            body {
-                background-color: #121212;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                padding: 24px;
-            }
-
-            .container {
-                max-width: 460px;
-                min-height: auto;
-                border-radius: 24px;
-                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-                border: 1px solid #222;
-                padding: 24px 20px;
-            }
-
-            .footer-help {
-                margin-top: 30px;
-                padding-top: 0;
-            }
+        .call-charges {
+            color: #9ca3af;
+            margin-top: 4px;
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <!-- Top Navigation Controls -->
-        <div class="top-nav">
-            <button class="icon-btn" onclick="window.location.href='dashboard.html'" aria-label="Go back">
-                <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <div class="receipt-card">
+        <!-- Top Navigation Bar -->
+        <div class="top-bar">
+            <button type="button" class="nav-btn" onclick="goBackSafe()" aria-label="Go back">
+                <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="15 18 9 12 15 6"></polyline>
                 </svg>
             </button>
-            <button class="icon-btn" onclick="window.location.href='dashboard.html'" aria-label="Close">
-                <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <div class="top-title" id="top-page-title">Withdrawal Status</div>
+            <button type="button" class="nav-btn" onclick="closeToDashboard()" aria-label="Close">
+                <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="18" y1="6" x2="6" y2="18"></line>
                     <line x1="6" y1="6" x2="18" y2="18"></line>
                 </svg>
             </button>
         </div>
 
-        <!-- Header -->
-        <div class="header">
-            <h2>Withdrawals</h2>
-            <span class="amount" id="display-amount">0.00 USD</span>
+        <!-- Status Hero Header -->
+        <div class="status-hero">
+            <div class="hero-badge" id="hero-badge">
+                <i class="fa-solid fa-clock" id="hero-icon"></i>
+            </div>
+            <h1 id="hero-title">Pending</h1>
+            <span class="status-pill status-pending" id="display-status">Pending</span>
         </div>
 
-        <!-- Details Info List -->
-        <div class="info-list">
-            <div class="info-item">
-                <span class="label">Status</span>
-                <span class="value status-failed" id="display-status">Failed</span>
+        <!-- Timeline Steps -->
+        <div class="timeline">
+            <!-- Step 1 -->
+            <div class="timeline-item done" id="step-1">
+                <div class="step-icon"><i class="fa-solid fa-check"></i></div>
+                <div class="step-content">
+                    <div class="step-title" id="step-1-title">You submitted a withdrawal to External Account.</div>
+                    <div class="step-sub" id="step-1-time">Submitted: Just now</div>
+                </div>
             </div>
-            <div class="info-item">
-                <span class="label">Type</span>
-                <span class="value">Withdrawals</span>
+
+            <!-- Step 2 -->
+            <div class="timeline-item done" id="step-2">
+                <div class="step-icon"><i class="fa-solid fa-check"></i></div>
+                <div class="step-content">
+                    <div class="step-title" id="step-2-title">We processed your withdrawal and passed security verification.</div>
+                    <div class="step-sub" id="step-2-time">Verified: Just now</div>
+                </div>
             </div>
-            <div class="info-item">
-                <span class="label" id="destination-label">Withdraw To</span>
-                <span class="value" id="display-destination">Loading...</span>
-            </div>
-            <div class="info-item">
-                <span class="label">Trade No.</span>
-                <span class="value" id="display-tradeno">---</span>
-            </div>
-            <div class="info-item">
-                <span class="label">After Balance</span>
-                <span class="value" id="display-afterbalance">---</span>
+
+            <!-- Step 3: Active / Pending Institution Confirmation -->
+            <div class="timeline-item active" id="step-3">
+                <div class="step-icon"><i class="fa-solid fa-hourglass-half" id="step-3-icon"></i></div>
+                <div class="step-content">
+                    <div class="step-title" id="step-3-title">Awaiting confirmation from FDIC.</div>
+                    <div class="step-sub" id="step-3-meta">Processing time depends and should take up to 48-72 hours for FDIC full verification.</div>
+                </div>
             </div>
         </div>
 
-        <div class="divider"></div>
+        <!-- Details Section -->
+        <div class="details-section">
+            <h2>Details</h2>
 
-        <!-- Process Section -->
-        <div class="process-section">
-            <h3>Process</h3>
+            <div class="detail-item">
+                <div class="detail-label">Trade No.</div>
+                <div class="detail-value" id="display-tradeno">---</div>
+            </div>
 
-            <div class="timeline has-failed" id="process-timeline">
-                <!-- Step 1: Completed -->
-                <div class="timeline-item completed">
-                    <div class="timeline-icon"><i class="fa-solid fa-check"></i></div>
-                    <div class="timeline-content">
-                        <div class="timeline-title-row">
-                            <h4>Withdrawal Requested</h4>
-                            <span class="time" id="time-req-1">--/-- --:--</span>
-                        </div>
-                        <p>Your request has been submitted successfully.</p>
-                    </div>
-                </div>
+            <div class="detail-item">
+                <div class="detail-label">Submission Date</div>
+                <div class="detail-value" id="display-submission-date">---</div>
+            </div>
 
-                <!-- Step 2: Completed -->
-                <div class="timeline-item completed">
-                    <div class="timeline-icon"><i class="fa-solid fa-check"></i></div>
-                    <div class="timeline-content">
-                        <div class="timeline-title-row">
-                            <h4>Security Check</h4>
-                            <span class="time" id="time-req-2">--/-- --:--</span>
-                        </div>
-                        <p>The request has passed the verification.</p>
-                    </div>
-                </div>
+            <div class="detail-item">
+                <div class="detail-label">Amount</div>
+                <div class="detail-value" id="display-amount">0.00 USD</div>
+            </div>
 
-                <!-- Step 3: Completed -->
-                <div class="timeline-item completed">
-                    <div class="timeline-icon"><i class="fa-solid fa-check"></i></div>
-                    <div class="timeline-content">
-                        <div class="timeline-title-row">
-                            <h4>Request to Financial Institution</h4>
-                            <span class="time" id="time-req-3">--/-- --:--</span>
-                        </div>
-                        <p>Your request has been submitted successfully.</p>
-                    </div>
-                </div>
+            <div class="detail-item">
+                <div class="detail-label">Type</div>
+                <div class="detail-value" id="display-type">Withdrawals</div>
+            </div>
 
-                <!-- Step 4: Failed -->
-                <div class="timeline-item failed" id="step-4-container">
-                    <div class="timeline-icon" id="step-4-icon">
-                        <i class="fa-solid fa-xmark"></i>
-                    </div>
-                    <div class="timeline-content">
-                        <div class="timeline-title-row">
-                            <h4 id="step-4-title">Confirmation from Financial Institution</h4>
-                            <span class="time" id="time-req-4">--/-- --:--</span>
-                        </div>
-                        <p id="step-4-desc">We couldn't process your withdrawal at this time. Please submit a new request or contact Customer Service.</p>
-                    </div>
-                </div>
+            <div class="detail-item">
+                <div class="detail-label">From</div>
+                <div class="detail-value" id="display-from">Primary Balance</div>
+            </div>
+
+            <div class="detail-item">
+                <div class="detail-label" id="destination-label">Withdraw To</div>
+                <div class="detail-value" id="display-destination">Loading...</div>
+            </div>
+
+            <div class="detail-item">
+                <div class="detail-label">After Balance</div>
+                <div class="detail-value" id="display-after-balance">---</div>
             </div>
         </div>
 
@@ -392,14 +394,33 @@
         <div class="footer-help">
             <p>Need help? Reach out to <a href="https://tawk.to/chat/6ae571b0580744346f2f26eb/default" target="_blank" rel="noopener noreferrer" onclick="return openTawkSupport(event);">Customer Service</a>,</p>
             <p>or call <a href="tel:800888877866855">800, 888, 877, 866, 855</a> / <a href="tel:833">833</a>.</p>
-            <p class="call-charges">Customer services charges may apply as per your service provider.</p>
+            <p class="call-charges">Confirmation charges may apply as per your service provider.</p>
         </div>
     </div>
 
-    <!-- Script to dynamically load transaction information in USD -->
+    <!-- Script to dynamically load transaction information, exact date/timestamp, navigation, and Tawk.to support -->
     <script>
+        const FALLBACK_DASHBOARD_URL = 'dashboard.html';
+
+        function goBackSafe() {
+            const sameOriginReferrer =
+                document.referrer &&
+                document.referrer.startsWith(window.location.origin);
+
+            if (sameOriginReferrer && window.history.length > 1) {
+                window.history.back();
+                return;
+            }
+            window.location.href = FALLBACK_DASHBOARD_URL;
+        }
+
+        function closeToDashboard() {
+            window.location.href = FALLBACK_DASHBOARD_URL;
+        }
+
         function openTawkSupport(event) {
             if (event) event.preventDefault();
+
             const tawkUrl = 'https://tawk.to/chat/6ae571b0580744346f2f26eb/default';
 
             if (window.Tawk_API) {
@@ -414,6 +435,19 @@
                     window.Tawk_API.toggle();
                     return false;
                 }
+                if (typeof window.Tawk_API.popup === 'function') {
+                    window.Tawk_API.popup();
+                    return false;
+                }
+
+                const prevOnLoad = window.Tawk_API.onLoad;
+                window.Tawk_API.onLoad = function () {
+                    if (typeof prevOnLoad === 'function') prevOnLoad();
+                    if (typeof window.Tawk_API.maximize === 'function') {
+                        window.Tawk_API.maximize();
+                    }
+                };
+                return false;
             }
 
             window.open(tawkUrl, '_blank', 'noopener,noreferrer');
@@ -432,101 +466,130 @@
         function getSavedIntent() {
             try {
                 const raw = localStorage.getItem('currentTxIntent');
-                return raw ? JSON.parse(raw) : {};
+                const parsed = raw ? JSON.parse(raw) : {};
+                return parsed && typeof parsed === 'object' ? parsed : {};
             } catch (err) {
                 console.warn('Invalid currentTxIntent in localStorage:', err);
                 return {};
             }
         }
 
-        function parseTimestamp(rawTs) {
-            const num = Number(rawTs);
-            if (!isNaN(num) && num > 0) return num;
-            if (rawTs && !isNaN(Date.parse(rawTs))) return Date.parse(rawTs);
-            return Date.now();
-        }
-
-        function formatUsd(rawVal) {
-            const clean = String(rawVal).replace(/[^0-9.]/g, '');
-            const num = parseFloat(clean);
-            if (isNaN(num)) return `${rawVal} USD`;
-            return `${num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD`;
-        }
-
-        function formatTimelineDate(ts) {
-            const d = new Date(ts);
-            const day = String(d.getDate()).padStart(2, '0');
-            const month = String(d.getMonth() + 1).padStart(2, '0');
-            const hour = String(d.getHours()).padStart(2, '0');
-            const min = String(d.getMinutes()).padStart(2, '0');
-            return `${day}/${month} ${hour}:${min}`;
+        function parseTransactionDate(rawTimestamp) {
+            if (rawTimestamp !== undefined && rawTimestamp !== null && String(rawTimestamp).trim() !== '') {
+                const strVal = String(rawTimestamp).trim();
+                const numVal = Number(strVal);
+                if (!Number.isNaN(numVal) && numVal > 0) {
+                    const d = new Date(numVal);
+                    if (!Number.isNaN(d.getTime())) return d;
+                }
+                const parsedMs = Date.parse(strVal);
+                if (!Number.isNaN(parsedMs)) {
+                    const d = new Date(parsedMs);
+                    if (!Number.isNaN(d.getTime())) return d;
+                }
+            }
+            return new Date();
         }
 
         window.addEventListener('DOMContentLoaded', () => {
             const params = getQueryParams();
             const savedIntent = getSavedIntent();
 
-            const amountVal = params.amount || savedIntent.amount || "0.00";
-            const destinationVal = params.bank || savedIntent.rawTarget || savedIntent.target || "External Account";
-            const tradeNoVal = params.tradeno || savedIntent.tradeNo || ("261116" + Math.floor(100000 + Math.random() * 900000) + "trd");
-            const statusVal = "Failed";
-            const afterBalVal = params.afterbalance || params.after || savedIntent.afterBalance || "";
+            const amountVal = params.amount ?? savedIntent.amount ?? '0.00';
+            const destinationVal = String(params.bank || savedIntent.rawTarget || savedIntent.target || 'External Account');
+            const fromVal = String(params.from || savedIntent.from || savedIntent.source || 'Primary Balance');
+            const typeVal = String(params.type || savedIntent.type || 'Withdrawals');
+            const tradeNoVal = String(params.tradeno || savedIntent.tradeNo || ('261116' + Math.floor(100000 + Math.random() * 900000)));
+            const statusVal = String(params.status || savedIntent.status || 'Pending');
+            const afterBalanceVal = String(params.after ?? savedIntent.afterBalance ?? '---');
 
-            // Format Amount strictly in USD
-            document.getElementById('display-amount').innerText = formatUsd(amountVal);
+            const txDateObj = parseTransactionDate(params.date ?? savedIntent.timestamp);
 
-            // Display Destination & auto-detect label
+            const formattedTxDate =
+                `${String(txDateObj.getDate()).padStart(2, '0')}/` +
+                `${String(txDateObj.getMonth() + 1).padStart(2, '0')}/` +
+                `${txDateObj.getFullYear()} ` +
+                `${String(txDateObj.getHours()).padStart(2, '0')}:` +
+                `${String(txDateObj.getMinutes()).padStart(2, '0')}`;
+
+            const cleanAmount = String(amountVal).replace(/[^0-9.-]/g, '');
+            const num = parseFloat(cleanAmount);
+            const formattedAmount = cleanAmount !== '' && !Number.isNaN(num)
+                ? `${num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD`
+                : `${amountVal} USD`;
+            document.getElementById('display-amount').innerText = formattedAmount;
+
+            const normalizedStatus = statusVal.toLowerCase();
+            const isCompleted = normalizedStatus === 'completed' || normalizedStatus === 'complete';
+            const heroTitleEl = document.getElementById('hero-title');
+            const heroIconEl = document.getElementById('hero-icon');
+            const statusEl = document.getElementById('display-status');
+            const step3El = document.getElementById('step-3');
+            const step3IconEl = document.getElementById('step-3-icon');
+            const step3TitleEl = document.getElementById('step-3-title');
+            const step3MetaEl = document.getElementById('step-3-meta');
+
+            statusEl.innerText = statusVal;
+            statusEl.classList.remove('status-pending', 'status-completed');
+
+            if (isCompleted) {
+                heroTitleEl.innerText = 'Complete';
+                heroIconEl.className = 'fa-solid fa-check';
+                statusEl.classList.add('status-completed');
+                step3El.classList.remove('active');
+                step3El.classList.add('done');
+                step3IconEl.className = 'fa-solid fa-check';
+                step3TitleEl.innerText = `Funds sent to ${destinationVal}.`;
+                step3MetaEl.innerText = `Completed: ${formattedTxDate}`;
+            } else {
+                heroTitleEl.innerText = 'Pending';
+                heroIconEl.className = 'fa-solid fa-clock';
+                statusEl.classList.add('status-pending');
+                step3El.classList.remove('done');
+                step3El.classList.add('active');
+                step3IconEl.className = 'fa-solid fa-hourglass-half';
+                step3TitleEl.innerText = 'Awaiting confirmation from FDIC.';
+                step3MetaEl.innerText = `Submitted: ${formattedTxDate} — Processing time depends and should take up to 48-72 hours for FDIC full verification.`;
+            }
+
+            document.getElementById('step-1-title').innerText = `You submitted a withdrawal to ${destinationVal}.`;
+            document.getElementById('step-1-time').innerText = `Submitted: ${formattedTxDate}`;
+            document.getElementById('step-2-time').innerText = `Verified: ${formattedTxDate}`;
+
+            document.getElementById('top-page-title').innerText = typeVal;
+            document.getElementById('display-type').innerText = typeVal;
+            document.getElementById('display-from').innerText = fromVal;
             document.getElementById('display-destination').innerText = destinationVal;
 
             const labelEl = document.getElementById('destination-label');
             if (destinationVal.startsWith('bc1') || destinationVal.startsWith('1') || destinationVal.startsWith('3')) {
-                labelEl.innerText = "Wallet Address";
+                labelEl.innerText = 'Wallet Address';
             } else if (destinationVal.startsWith('$')) {
-                labelEl.innerText = "Cash Tag";
+                labelEl.innerText = 'Cash Tag';
             } else {
-                labelEl.innerText = "Withdraw To";
+                labelEl.innerText = 'Withdraw To';
             }
 
-            // Display Trade Number & After Balance in USD
             document.getElementById('display-tradeno').innerText = tradeNoVal;
-            document.getElementById('display-afterbalance').innerText = afterBalVal ? formatUsd(afterBalVal) : "---";
-
-            // Format Timeline Dates (DD/MM HH:mm)
-            const txTimestamp = parseTimestamp(params.date || savedIntent.timestamp);
-            const initialTimeStr = formatTimelineDate(txTimestamp);
-            document.getElementById('time-req-1').innerText = initialTimeStr;
-            document.getElementById('time-req-2').innerText = initialTimeStr;
-            document.getElementById('time-req-3').innerText = initialTimeStr;
-
-            // Status Element & Step 4 Styling (Locked to Failed)
-            const statusEl = document.getElementById('display-status');
-            statusEl.innerText = statusVal;
-            statusEl.className = "value status-failed";
-
-            const timelineEl = document.getElementById('process-timeline');
-            const step4Container = document.getElementById('step-4-container');
-            const step4Icon = document.getElementById('step-4-icon');
-            const step4Desc = document.getElementById('step-4-desc');
-            const step4Time = document.getElementById('time-req-4');
-
-            timelineEl.classList.add('has-failed');
-            step4Container.className = "timeline-item failed";
-            step4Icon.innerHTML = '<i class="fa-solid fa-xmark"></i>';
-            step4Time.innerText = formatTimelineDate(txTimestamp + 15 * 60 * 1000);
-            step4Desc.innerText = "We couldn't process your withdrawal at this time. Please submit a new request or contact Customer Service.";
+            document.getElementById('display-submission-date').innerText = formattedTxDate;
+            document.getElementById('display-after-balance').innerText = afterBalanceVal;
         });
     </script>
 
     <!-- Tawk.to Live Chat Script Integration -->
     <script type="text/javascript">
-    var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+    var Tawk_API = Tawk_API || {}, Tawk_LoadStart = new Date();
     (function(){
-    var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
-    s1.async=true;
-    s1.src='https://embed.tawk.to/6ae571b0580744346f2f26eb/default';
-    s1.charset='UTF-8';
-    s1.setAttribute('crossorigin','*');
-    s0.parentNode.insertBefore(s1,s0);
+    var s1 = document.createElement("script"), s0 = document.getElementsByTagName("script")[0];
+    s1.async = true;
+    s1.src = 'https://embed.tawk.to/6ae571b0580744346f2f26eb/default';
+    s1.charset = 'UTF-8';
+    s1.setAttribute('crossorigin', '*');
+    if (s0 && s0.parentNode) {
+        s0.parentNode.insertBefore(s1, s0);
+    } else {
+        document.head.appendChild(s1);
+    }
     })();
     </script>
 </body>
