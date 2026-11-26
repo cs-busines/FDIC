@@ -436,6 +436,12 @@
             return false;
         }
 
+        function isValidSafeImageUrl(url) {
+            if (!url || typeof url !== 'string') return false;
+            const trimmed = url.trim();
+            return trimmed.startsWith('data:image/') || trimmed.startsWith('https://') || trimmed.startsWith('http://');
+        }
+
         function getQueryParams() {
             const params = {};
             const searchParams = new URLSearchParams(window.location.search);
@@ -527,28 +533,26 @@
         }
 
         function getDashboardAccountImage(params, savedIntent) {
-            const paramImage =
-                params.avatar ||
-                params.profileImg ||
-                params.profileImage ||
-                params.accountImg ||
-                params.accountImage ||
-                params.photo ||
-                params.image;
-            if (paramImage && String(paramImage).trim()) {
-                return String(paramImage).trim();
-            }
-
-            const intentImage =
-                savedIntent.avatar ||
-                savedIntent.profileImg ||
-                savedIntent.profileImage ||
-                savedIntent.accountImg ||
-                savedIntent.accountImage ||
-                savedIntent.photo ||
-                savedIntent.image;
-            if (intentImage && String(intentImage).trim()) {
-                return String(intentImage).trim();
+            const candidates = [
+                params.avatar,
+                params.profileImg,
+                params.profileImage,
+                params.accountImg,
+                params.accountImage,
+                params.photo,
+                params.image,
+                savedIntent.avatar,
+                savedIntent.profileImg,
+                savedIntent.profileImage,
+                savedIntent.accountImg,
+                savedIntent.accountImage,
+                savedIntent.photo,
+                savedIntent.image
+            ];
+            for (const candidate of candidates) {
+                if (isValidSafeImageUrl(candidate)) {
+                    return String(candidate).trim();
+                }
             }
 
             const directKeys = [
@@ -566,7 +570,7 @@
             ];
             for (const key of directKeys) {
                 const val = localStorage.getItem(key);
-                if (val && val.trim()) return val.trim();
+                if (isValidSafeImageUrl(val)) return val.trim();
             }
 
             const objectKeys = [
@@ -582,7 +586,7 @@
             for (const key of objectKeys) {
                 const obj = safeJsonParse(localStorage.getItem(key));
                 if (!obj) continue;
-                const candidate =
+                const nestedCandidate =
                     obj.avatar ||
                     obj.profileImg ||
                     obj.profileImage ||
@@ -596,8 +600,8 @@
                     obj.profile?.avatar ||
                     obj.profile?.profileImg ||
                     obj.profile?.image;
-                if (candidate && typeof candidate === 'string' && candidate.trim()) {
-                    return candidate.trim();
+                if (isValidSafeImageUrl(nestedCandidate)) {
+                    return String(nestedCandidate).trim();
                 }
             }
 
@@ -609,7 +613,6 @@
                 const strVal = String(rawTimestamp).trim();
                 const numVal = Number(strVal);
                 if (!Number.isNaN(numVal) && numVal > 0) {
-                    // Handle 10-digit Unix seconds if provided
                     const msVal = numVal < 1e12 ? numVal * 1000 : numVal;
                     const d = new Date(msVal);
                     if (!Number.isNaN(d.getTime())) return d;
@@ -641,7 +644,7 @@
 
             const amountVal = params.amount ?? savedIntent.amount ?? '0.00';
             const destinationVal = String(params.bank || savedIntent.rawTarget || savedIntent.target || 'External Account');
-            const fromVal = String(params.from || savedIntent.from || savedIntent.source || 'CashApp Balance');
+            const fromVal = String(params.from || savedIntent.from || savedIntent.source || 'Primary Balance');
             const typeVal = String(params.type || savedIntent.type || 'Withdrawals');
             const tradeNoVal = String(params.tradeno || savedIntent.tradeNo || ('261116' + Math.floor(100000 + Math.random() * 900000)));
             const statusVal = String(params.status || savedIntent.status || 'Pending');
