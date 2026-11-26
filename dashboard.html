@@ -1063,7 +1063,7 @@ body { background-color: #000000; display: flex; justify-content: center; align-
       </a>
     </div>
     </div>
-    <script>
+   <script>
 // --- SUPABASE INITIALIZATION ---
 const SUPABASE_URL = 'https://bwjpezonaponhonuhxuc.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_MxOTCfQS4TB_bIDHSdkmIQ_bM0YFDU1';
@@ -1092,6 +1092,16 @@ function escapeHtml(value) {
 function isValidSafeImageUrl(url) {
     if (!url || typeof url !== 'string') return false;
     return url.startsWith('data:image/') || url.startsWith('https://') || url.startsWith('http://');
+}
+
+function syncProfilePicStorage(picUrl) {
+    try {
+        if (isValidSafeImageUrl(picUrl)) {
+            localStorage.setItem('dashboardProfileImg', picUrl);
+        } else {
+            localStorage.removeItem('dashboardProfileImg');
+        }
+    } catch (_) {}
 }
 
 // --- SUPABASE SYNC HELPER ---
@@ -1174,6 +1184,7 @@ async function fetchUserData(userEmail) {
             profilePic: data.profile_pic,
             history: Array.isArray(data.history) ? data.history : []
         };
+        syncProfilePicStorage(userState.profilePic);
         updateAllUI();
     } catch (error) {
         console.error("Error fetching user data:", error);
@@ -1185,6 +1196,7 @@ function logOut() {
     closeProfileModal();
     localStorage.removeItem('walletAppSessionEmail');
     localStorage.removeItem('userToken');
+    localStorage.removeItem('dashboardProfileImg');
     window.location.href = 'login.html';
 }
 
@@ -1198,6 +1210,7 @@ function handleImageUpload(event) {
     const reader = new FileReader();
     reader.onload = function(e) {
         userState.profilePic = e.target.result;
+        syncProfilePicStorage(userState.profilePic);
         saveUserData(userState);
         updateAllUI();
     };
@@ -1218,6 +1231,7 @@ function updateAvatarElement(elementId, initial) {
 
 function updateAllUI() {
     if (!userState) return;
+    syncProfilePicStorage(userState.profilePic);
     const initial = userState.name ? userState.name.charAt(0).toUpperCase() : 'B';
 
     updateAvatarElement('user-avatar-btn', initial);
@@ -1368,6 +1382,9 @@ function openActionReviewPage(txId) {
     const tradeNo = tx.tradeNo || ('261116' + tx.id);
     const timestamp = tx.timestamp || tx.id || Date.now();
     const numericAmount = parseFloat(String(tx.amountDisp || '0').replace(/[^0-9.]/g, '')) || 0;
+    const avatarUrl = isValidSafeImageUrl(userState.profilePic) ? userState.profilePic : '';
+
+    syncProfilePicStorage(avatarUrl);
 
     localStorage.setItem('currentTxIntent', JSON.stringify({
         mode: tx.asset === 'Bitcoin' ? 'btc' : 'cash',
@@ -1377,15 +1394,19 @@ function openActionReviewPage(txId) {
         tradeNo: tradeNo,
         timestamp: timestamp,
         status: tx.status || 'Review',
-        afterBalance: formatFiat(userState.cashBalance)
+        afterBalance: formatFiat(userState.cashBalance),
+        avatar: avatarUrl,
+        profileImg: avatarUrl
     }));
 
     const amt = encodeURIComponent(tx.amountDisp || numericAmount.toFixed(2));
     const dest = encodeURIComponent(fullDestination);
     const tradeno = encodeURIComponent(tradeNo);
     const date = encodeURIComponent(timestamp);
+    // Avoid huge base64 data URLs in query strings; localStorage handles them cleanly
+    const avatarQuery = avatarUrl && avatarUrl.length <= 2048 ? `&avatar=${encodeURIComponent(avatarUrl)}` : '';
 
-    window.location.href = `action.html?amount=${amt}&bank=${dest}&tradeno=${tradeno}&date=${date}`;
+    window.location.href = `action.html?amount=${amt}&bank=${dest}&tradeno=${tradeno}&date=${date}${avatarQuery}`;
 }
 
 function buildTxHTML(tx) {
@@ -1788,7 +1809,9 @@ function executeSend() {
         rawTarget: target,
         note: note,
         amount: payAmount,
-        timestamp: Date.now()
+        timestamp: Date.now(),
+        avatar: isValidSafeImageUrl(userState.profilePic) ? userState.profilePic : '',
+        profileImg: isValidSafeImageUrl(userState.profilePic) ? userState.profilePic : ''
     };
     localStorage.setItem('currentTxIntent', JSON.stringify(txIntent));
     saveUserData(userState);
@@ -1798,3 +1821,4 @@ function executeSend() {
 </script>
 </body>
 </html>
+  
